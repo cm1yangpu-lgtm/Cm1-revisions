@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sciences CM1 — Activités interactives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#2E1A47;
+    --indigo-deep:#20122F;
+    --indigo-soft:#3D2361;
+    --yellow:#FFC93C;
+    --yellow-deep:#E8AE13;
+    --blue:#2D6CDF;
+    --orange:#F2994A;
+    --purple:#9B51E0;
+    --teal:#1FA98A;
+    --green:#2E9E5B;
+    --green-light:#E1F6E9;
+    --ink:#241442;
+    --paper:#FDFBFF;
+    --grey:#9086AC;
+    --grey-line:#DCD4EE;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(255,201,60,0.16), transparent 42%),
+      radial-gradient(circle at 92% 85%, rgba(155,81,224,0.22), transparent 40%),
+      var(--indigo);
+    font-family:'Nunito', sans-serif;
+    color:var(--paper);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{ font-family:'Baloo 2', sans-serif; }
+
+  /* ---------- barre du haut ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px; gap:16px; flex-wrap:wrap;
+    background:var(--indigo-deep);
+    border-bottom:3px solid var(--indigo-soft);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-badge{
+    width:44px; height:44px; border-radius:14px; background:var(--yellow);
+    display:flex; align-items:center; justify-content:center; font-size:22px;
+    flex:none;
+  }
+  .brand-text{ font-family:'Baloo 2', sans-serif; font-weight:700; font-size:1.15rem; }
+  .brand-text small{ display:block; font-family:'Nunito',sans-serif; font-weight:600; font-size:0.72rem; color:var(--grey); }
+  .tabs{ display:flex; gap:10px; }
+  .tab-btn{
+    font-family:'Baloo 2', sans-serif; font-weight:600; font-size:1rem;
+    background:transparent; color:var(--paper); border:2px solid var(--indigo-soft);
+    padding:10px 20px; border-radius:999px; cursor:pointer; transition:all .15s ease;
+  }
+  .tab-btn.active{ background:var(--yellow); color:var(--ink); border-color:var(--yellow); }
+  .tab-btn:not(.active):hover{ border-color:var(--yellow); }
+
+  .screen{ display:none; padding:36px 24px 60px; max-width:1150px; margin:0 auto; }
+  .screen.active{ display:block; }
+
+  .lede{ max-width:700px; margin-bottom:8px; }
+  .lede h1{ font-size:2rem; margin:0 0 10px; font-weight:700; }
+  .lede p{ margin:0; color:#D9CCF0; font-size:1.08rem; line-height:1.5; }
+
+  /* ================= ACTIVITÉ 1 : ÉTIQUETTES ================= */
+  .board-label{
+    font-family:'Baloo 2', sans-serif; font-weight:600; font-size:0.95rem;
+    color:var(--yellow); margin:34px 0 14px;
+  }
+  .tray{
+    display:flex; flex-wrap:wrap; gap:18px; min-height:132px;
+    padding:14px; border-radius:20px; background:rgba(255,255,255,0.04);
+  }
+  .chip{
+    width:190px; min-height:112px; border-radius:18px; padding:14px 14px 12px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:8px; text-align:center; cursor:grab; user-select:none; touch-action:none;
+    background:var(--chip-color); color:#fff;
+    box-shadow:0 8px 0 rgba(0,0,0,0.16), 0 10px 18px rgba(0,0,0,0.25);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .chip:active{ cursor:grabbing; }
+  .chip.placed{ box-shadow:0 4px 0 rgba(0,0,0,0.14), 0 6px 12px rgba(0,0,0,0.2); }
+  .chip-icon{ font-size:2rem; line-height:1; }
+  .chip-label{ font-family:'Baloo 2', sans-serif; font-weight:600; font-size:0.92rem; line-height:1.25; }
+  .chip.ghost{
+    position:fixed; z-index:500; pointer-events:none; opacity:0.96;
+    transform:scale(1.06) rotate(-2deg);
+  }
+  .chip.dim{ opacity:0.22; }
+
+  .slots{ display:flex; gap:18px; flex-wrap:wrap; margin-top:8px; }
+  .slot-wrap{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .slot-index{ font-family:'Baloo 2', sans-serif; font-weight:700; color:var(--grey); font-size:0.95rem; }
+  .slot{
+    width:190px; min-height:112px; border-radius:18px;
+    border:3px dashed var(--indigo-soft); background:rgba(255,255,255,0.03);
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .slot.hover-target{ border-color:var(--yellow); background:rgba(255,201,60,0.08); }
+  .slot.filled{ border-style:solid; border-color:var(--indigo-soft); }
+  .slot.correct{ border-color:var(--green); border-style:solid; }
+  .slot.incorrect{ border-color:var(--orange); border-style:solid; }
+  .slot-placeholder{ color:var(--grey); font-size:0.85rem; font-family:'Nunito',sans-serif; }
+  .badge-mark{
+    position:absolute; margin-top:-92px; margin-left:150px;
+    width:30px; height:30px; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:16px; font-weight:800; color:#fff;
+  }
+
+  .status-line{
+    margin-top:22px; font-family:'Baloo 2', sans-serif; font-weight:600; font-size:1.05rem;
+    min-height:1.6rem; color:var(--yellow);
+  }
+  .controls{ display:flex; gap:14px; margin-top:18px; flex-wrap:wrap; }
+  .btn{
+    font-family:'Baloo 2', sans-serif; font-weight:600; font-size:1rem;
+    border-radius:999px; padding:14px 26px; border:2px solid transparent;
+    cursor:pointer; transition:transform .1s ease, filter .1s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn-primary{ background:var(--yellow); color:var(--ink); }
+  .btn-primary:hover{ filter:brightness(1.05); }
+  .btn-ghost{ background:transparent; color:var(--paper); border-color:var(--indigo-soft); }
+  .btn-ghost:hover{ border-color:var(--yellow); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .float-emoji{
+    position:fixed; font-size:2rem; pointer-events:none; z-index:600;
+    animation:floatUp 1.1s ease-out forwards;
+  }
+  @keyframes floatUp{
+    0%{ transform:translateY(0) scale(0.6); opacity:0; }
+    15%{ opacity:1; }
+    100%{ transform:translateY(-140px) scale(1.2); opacity:0; }
+  }
+
+  /* ================= ACTIVITÉ 2 : QUIZ ================= */
+  .quiz-header-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:30px; }
+  .scoreboard{
+    display:flex; gap:14px; flex-wrap:wrap;
+  }
+  .team-card{
+    position:relative; background:var(--indigo-deep); border-radius:16px; padding:14px 20px;
+    display:flex; flex-direction:column; align-items:center; gap:4px; min-width:118px;
+    cursor:pointer; border:2px solid transparent; user-select:none;
+    transition:transform .08s ease, border-color .15s ease, background .15s ease;
+  }
+  .team-card:hover{ border-color:var(--yellow); }
+  .team-card:active{ transform:scale(0.95); }
+  .team-card.pulse{ animation:teamPulse .35s ease; }
+  @keyframes teamPulse{
+    0%{ transform:scale(1); } 40%{ transform:scale(1.12); } 100%{ transform:scale(1); }
+  }
+  .team-name{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:0.95rem; }
+  .team-score{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.8rem; }
+  .team-hint{ font-size:0.68rem; color:var(--grey); font-family:'Nunito',sans-serif; }
+  .team-reset{
+    position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%;
+    background:var(--indigo-soft); color:#fff; border:none; cursor:pointer; font-size:0.75rem;
+    display:flex; align-items:center; justify-content:center; opacity:0.7;
+  }
+  .team-reset:hover{ opacity:1; background:var(--orange); }
+  .btn-trophy{
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:0.95rem;
+    background:var(--indigo-deep); color:var(--yellow); border:2px solid var(--yellow-deep);
+    padding:12px 20px; border-radius:999px; cursor:pointer; white-space:nowrap;
+  }
+  .btn-trophy:hover{ background:var(--indigo-soft); }
+
+  .quiz-progress{ font-family:'Baloo 2',sans-serif; color:var(--yellow); font-weight:600; margin-bottom:10px; }
+  .quiz-question{ font-size:1.7rem; font-weight:700; margin:0 0 26px; max-width:820px; line-height:1.35; }
+
+  .options-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:940px; }
+  .option-btn{
+    display:flex; align-items:center; gap:14px; text-align:left;
+    border-radius:16px; padding:18px 20px; border:none; cursor:pointer;
+    font-family:'Nunito',sans-serif; font-weight:700; font-size:1.05rem; color:#fff;
+    transition:transform .1s ease, opacity .2s ease, filter .15s ease;
+  }
+  .option-btn:hover{ filter:brightness(1.06); }
+  .option-btn:active{ transform:scale(0.98); }
+  .option-letter{
+    width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.28);
+    display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',sans-serif;
+    font-weight:700; flex:none;
+  }
+  .option-btn.correct{ outline:3px solid var(--green); background:var(--green) !important; }
+  .option-btn.muted{ opacity:0.35; }
+  .option-btn.selected{ outline:4px solid #FFFFFF; box-shadow:0 0 0 3px rgba(255,255,255,0.25); }
+  .option-btn.selected.correct{ outline:4px solid #FFFFFF; }
+
+  .fact-panel{
+    display:none; margin-top:22px; max-width:940px; background:var(--indigo-deep);
+    border-radius:16px; padding:18px 20px; font-style:italic; line-height:1.5;
+    border-left:5px solid var(--yellow);
+  }
+  .fact-panel.show{ display:block; }
+
+  .quiz-controls{ display:flex; justify-content:space-between; align-items:center; margin-top:30px; max-width:940px; flex-wrap:wrap; gap:16px; }
+  .quiz-nav{ display:flex; gap:12px; }
+  .quiz-actions{ display:flex; gap:12px; flex-wrap:wrap; }
+
+  /* ---------- modales (infographie + résultats) ---------- */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(15,7,26,0.78);
+    align-items:center; justify-content:center; z-index:800; padding:24px;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-box{
+    background:var(--indigo-deep); border-radius:22px; padding:30px 34px 26px;
+    max-width:620px; width:100%; max-height:88vh; overflow-y:auto; position:relative;
+    border:2px solid var(--indigo-soft);
+  }
+  .modal-close{
+    position:absolute; top:16px; right:16px; width:36px; height:36px; border-radius:50%;
+    background:var(--indigo-soft); color:#fff; border:none; font-size:1.1rem; cursor:pointer;
+  }
+  .modal-close:hover{ background:var(--orange); }
+  .modal-title{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.3rem; margin:0 0 16px; padding-right:30px; }
+  .modal-svg-wrap{ display:flex; justify-content:center; margin-bottom:18px; }
+  .modal-svg-wrap svg{ width:100%; max-width:340px; height:auto; }
+  .modal-caption{ font-style:italic; color:#D9CCF0; line-height:1.55; text-align:center; margin:0; }
+
+  .results-podium{ display:flex; flex-direction:column; gap:12px; margin-top:10px; }
+  .results-row{
+    display:flex; align-items:center; gap:14px; background:rgba(255,255,255,0.04);
+    border-radius:14px; padding:14px 18px;
+  }
+  .results-row.winner{ background:rgba(255,201,60,0.14); border:2px solid var(--yellow); }
+  .results-rank{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.2rem; width:28px; text-align:center; }
+  .results-name{ flex:1; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; }
+  .results-score{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.2rem; color:var(--yellow); }
+  .trophy-banner{ text-align:center; margin-bottom:20px; }
+  .trophy-banner .emoji{ font-size:3rem; display:block; margin-bottom:8px; }
+  .trophy-banner .title{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.4rem; color:var(--yellow); margin:0 0 4px; }
+  .trophy-banner .subtitle{ color:#D9CCF0; margin:0; }
+
+  @media (max-width:640px){
+    .quiz-question{ font-size:1.35rem; }
+    .options-grid{ grid-template-columns:1fr; }
+    .chip, .slot{ width:150px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-badge">🔬</div>
+    <div class="brand-text">Sciences en jeu<small>Introduction — CM1</small></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-screen="steps">Étapes de la démarche</button>
+    <button class="tab-btn" data-screen="quiz">Quiz par équipes</button>
+  </div>
+</div>
+
+<!-- ===================== ACTIVITÉ 1 ===================== -->
+<div class="screen active" id="screen-steps">
+  <div class="lede">
+    <h1>Remets les étiquettes dans l'ordre</h1>
+    <p>Fais glisser chaque étiquette vers la bonne case, dans l'ordre de la démarche scientifique.</p>
+  </div>
+
+  <div class="board-label">Étiquettes</div>
+  <div class="tray" id="tray"></div>
+
+  <div class="board-label">Ordre de la démarche</div>
+  <div class="slots" id="slots"></div>
+
+  <div class="status-line" id="statusLine"></div>
+  <div class="controls">
+    <button class="btn btn-primary" id="btnCheck">Vérifier</button>
+    <button class="btn btn-ghost" id="btnReset">Réinitialiser</button>
+    <button class="btn btn-ghost" id="btnSolution">Voir la solution</button>
+  </div>
+</div>
+
+<!-- ===================== ACTIVITÉ 2 ===================== -->
+<div class="screen" id="screen-quiz">
+  <div class="lede">
+    <h1>Quiz de culture scientifique</h1>
+    <p>Clique sur le nom d'une équipe pour lui donner un point quand elle trouve la bonne réponse. Attention aux réponses farfelues, elles ne rapportent rien !</p>
+  </div>
+
+  <div class="quiz-header-row">
+    <div class="scoreboard" id="scoreboard"></div>
+    <button class="btn-trophy" id="btnResults">🏆 Classement</button>
+  </div>
+
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="options-grid" id="optionsGrid"></div>
+  <div class="fact-panel" id="factPanel"></div>
+
+  <div class="quiz-controls">
+    <div class="quiz-nav">
+      <button class="btn btn-ghost" id="btnPrev">◀ Précédent</button>
+      <button class="btn btn-ghost" id="btnNext">Suivant ▶</button>
+      <button class="btn btn-ghost" id="btnRestart">↺ Recommencer</button>
+    </div>
+    <div class="quiz-actions">
+      <button class="btn btn-ghost" id="btnUnderstand">🔎 Je comprends</button>
+      <button class="btn btn-primary" id="btnReveal">Révéler la réponse</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODALE INFOGRAPHIE ===================== -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal-box">
+    <button class="modal-close" id="infoModalClose">✕</button>
+    <h3 class="modal-title" id="infoModalTitle"></h3>
+    <div class="modal-svg-wrap" id="infoModalSvg"></div>
+    <p class="modal-caption" id="infoModalCaption"></p>
+  </div>
+</div>
+
+<!-- ===================== MODALE RÉSULTATS ===================== -->
+<div class="modal-overlay" id="resultsModal">
+  <div class="modal-box">
+    <button class="modal-close" id="resultsModalClose">✕</button>
+    <div class="trophy-banner" id="trophyBanner"></div>
+    <div class="results-podium" id="resultsPodium"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DONNÉES
+   ============================================================ */
+const STEPS = [
+  { key:"question",   order:1, icon:"🔍", color:"var(--blue)",   label:"Je me pose une question" },
+  { key:"theorie",     order:2, icon:"💡", color:"var(--orange)", label:"Je propose une théorie" },
+  { key:"experience",  order:3, icon:"🧪", color:"var(--purple)", label:"Je réalise une expérience" },
+  { key:"partage",     order:4, icon:"🤝", color:"var(--teal)",   label:"Je partage mes résultats avec d'autres scientifiques" },
+];
+const SHUFFLE_ORDER = ["experience","question","partage","theorie"];
+
+const QUIZ = [
+  { q:"Combien y a-t-il de planètes dans le système solaire ?",
+    options:["7","8","9","Autant que de bonbons dans un paquet géant"], correct:1,
+    fact:"Il y a 8 planètes depuis que Pluton a été reclassée en « planète naine » en 2006 !" },
+  { q:"Quel est l'animal terrestre le plus rapide du monde ?",
+    options:["Le lion","Le guépard","L'autruche","Mon petit frère quand on annonce le goûter"], correct:1,
+    fact:"Le guépard peut atteindre 110 km/h... mais seulement sur de courtes distances !" },
+  { q:"Combien d'os compte le squelette d'un adulte ?",
+    options:["106","206","306","Ça dépend si on compte les dents !"], correct:1,
+    fact:"Un bébé naît avec environ 300 os : certains fusionnent en grandissant pour arriver à 206." },
+  { q:"Que devient l'eau à 0°C ?",
+    options:["Elle reste liquide","Elle se transforme en gaz","Elle se transforme en glace (solide)","Elle disparaît par magie"], correct:2,
+    fact:"En gelant, l'eau augmente de volume : c'est pourquoi une bouteille pleine peut éclater au congélateur !" },
+  { q:"Quelle planète est surnommée « la planète rouge » ?",
+    options:["Vénus","Mars","Jupiter","Mon visage après un coup de soleil"], correct:1,
+    fact:"Mars doit sa couleur à la rouille (l'oxyde de fer) qui recouvre ses roches." },
+  { q:"Combien de temps met la lumière du Soleil pour arriver jusqu'à la Terre ?",
+    options:["8 minutes","8 secondes","8 heures","Le temps de finir un paquet de bonbons"], correct:0,
+    fact:"La lumière voyage à 300 000 km par seconde, et il lui faut quand même 8 minutes pour parcourir 150 millions de km !" },
+  { q:"Quel est le plus grand organe du corps humain ?",
+    options:["Le cœur","Le cerveau","La peau","L'estomac les jours de fête"], correct:2,
+    fact:"La peau représente environ 16% du poids total du corps !" },
+  { q:"Quel animal peut dormir debout ?",
+    options:["Le cheval","Le chat","Le poisson rouge","Mon voisin pendant la leçon d'histoire"], correct:0,
+    fact:"Le cheval peut bloquer ses articulations des pattes pour somnoler debout, prêt à fuir un danger !" },
+  { q:"Quel scientifique est célèbre pour sa théorie de la relativité ?",
+    options:["Isaac Newton","Albert Einstein","Marie Curie","Le professeur Tournesol"], correct:1,
+    fact:"Einstein a publié sa théorie de la relativité générale en 1915." },
+  { q:"Quel est le plus grand animal du monde (encore vivant aujourd'hui) ?",
+    options:["L'éléphant d'Afrique","La baleine bleue","Le requin blanc","Le dinosaure du jardin public"], correct:1,
+    fact:"La baleine bleue peut mesurer jusqu'à 30 mètres, soit la longueur de 3 bus mis bout à bout !" },
+  { q:"Quel gaz les plantes absorbent-elles pour fabriquer leur nourriture ?",
+    options:["Le dioxygène","Le dioxyde de carbone","L'hydrogène","Le gaz qui fait roter"], correct:1,
+    fact:"C'est la photosynthèse : les plantes captent le CO2 et rejettent du dioxygène, celui qu'on respire !" },
+  { q:"Combien de dents compte un adulte en moyenne (dents de sagesse comprises) ?",
+    options:["20","32","40","Ça dépend du nombre de bonbons mangés"], correct:1,
+    fact:"Un enfant a 20 dents de lait, qui laissent place à 32 dents définitives à l'âge adulte." },
+
+  // ---------- Questions ciblées programme CE2 / CM1 ----------
+  { q:"Combien de sens possède un être humain ?",
+    options:["3","4","5","Autant que de doigts sur la main"], correct:2,
+    fact:"Les 5 sens sont la vue, l'ouïe, l'odorat, le goût et le toucher." },
+  { q:"Quel organe pompe le sang dans tout le corps ?",
+    options:["Le cerveau","Le cœur","Le foie","Le gros orteil"], correct:1,
+    fact:"Le cœur bat environ 100 000 fois par jour !" },
+  { q:"Quel gaz nos poumons captent-ils dans l'air pour nous faire vivre ?",
+    options:["Le dioxygène","Le dioxyde de carbone","L'azote","L'hélium des ballons de baudruche"], correct:0,
+    fact:"Nos poumons captent le dioxygène de l'air inspiré et rejettent le dioxyde de carbone." },
+  { q:"Comment appelle-t-on la transformation d'une chenille en papillon ?",
+    options:["La mutation","La métamorphose","L'évolution","La transformation magique d'une fée"], correct:1,
+    fact:"La métamorphose complète passe par 4 étapes : œuf, chenille, chrysalide, papillon." },
+  { q:"Parmi ces animaux, lequel est un invertébré (sans squelette interne) ?",
+    options:["Le chat","L'escargot","La grenouille","Le poisson rouge"], correct:1,
+    fact:"Les invertébrés n'ont pas de squelette interne : l'escargot est protégé par une coquille externe." },
+  { q:"Pourquoi voit-on alterner le jour et la nuit ?",
+    options:["Le Soleil s'éteint la nuit","La Terre tourne sur elle-même","La Lune cache le Soleil","Les nuages bloquent la lumière"], correct:1,
+    fact:"La Terre effectue un tour complet sur elle-même en environ 24 heures." },
+  { q:"Combien de temps la Terre met-elle pour faire le tour du Soleil ?",
+    options:["1 jour","1 mois","1 an","Le temps des grandes vacances"], correct:2,
+    fact:"Ce tour complet dure environ 365 jours : c'est une année." },
+  { q:"Que faut-il pour faire briller une ampoule grâce à l'électricité ?",
+    options:["Un circuit électrique fermé","Un aimant tout seul","Un morceau de bois","Un vœu fait à une étoile"], correct:0,
+    fact:"Il faut un circuit fermé (pile, fils, ampoule) pour que le courant électrique circule." },
+  { q:"Quels matériaux laissent bien passer le courant électrique ?",
+    options:["Le plastique","Le bois","Les métaux","Le papier"], correct:2,
+    fact:"Les métaux comme le cuivre sont de bons conducteurs : on les utilise dans les fils électriques." },
+  { q:"Quel mélange obtient-on en mélangeant de l'eau et du sable ?",
+    options:["Un mélange homogène (on ne voit plus rien)","Un mélange hétérogène (on voit les deux)","Une nouvelle matière","De la boue magique qui exauce les vœux"], correct:1,
+    fact:"Le sable ne se dissout pas dans l'eau : c'est un mélange hétérogène qu'on peut filtrer." },
+  { q:"Que se passe-t-il quand on dissout du sucre dans l'eau chaude ?",
+    options:["Il disparaît pour toujours","Il forme un mélange homogène : on ne le voit plus mais il est toujours là","Il se transforme en sel","Rien du tout"], correct:1,
+    fact:"Le sucre se dissout : le mélange devient homogène, mais la matière du sucre est toujours présente." },
+  { q:"De quoi les plantes vertes ont-elles besoin pour grandir ?",
+    options:["De lumière, d'eau et d'air","Uniquement de musique classique","De bonbons","De rien, elles grandissent toutes seules"], correct:0,
+    fact:"Les plantes vertes fabriquent leur nourriture grâce à la lumière, à l'eau et au dioxyde de carbone de l'air." },
+  { q:"Comment appelle-t-on une source d'énergie qui ne s'épuise pas, comme le vent ou le soleil ?",
+    options:["Une énergie fossile","Une énergie renouvelable","Une énergie imaginaire","Une énergie interdite à l'école"], correct:1,
+    fact:"Le vent, le soleil et l'eau sont des sources d'énergie renouvelables, contrairement au pétrole ou au charbon." },
+  { q:"Quel est le rôle des poumons dans le corps humain ?",
+    options:["Digérer les aliments","Faire circuler le sang","Permettre la respiration","Faire pousser les cheveux"], correct:2,
+    fact:"Les poumons captent le dioxygène de l'air inspiré et rejettent le dioxyde de carbone." },
+  { q:"Qu'appelle-t-on une chaîne alimentaire ?",
+    options:["Une suite d'êtres vivants qui se mangent les uns les autres","Une chaîne pour attacher les animaux de la ferme","La liste des plats à la cantine","Une décoration de Noël"], correct:0,
+    fact:"Exemple : l'herbe est mangée par le lapin, qui est mangé par le renard." },
+  { q:"Combien de phases principales la Lune présente-t-elle dans son cycle ?",
+    options:["2","4","12","Autant que de jours dans l'année"], correct:1,
+    fact:"On distingue 4 grandes phases : nouvelle lune, premier quartier, pleine lune, dernier quartier." },
+  { q:"Pourquoi est-il important de trier ses déchets ?",
+    options:["Pour faire plaisir à la maîtresse","Pour permettre le recyclage et protéger l'environnement","Parce que c'est obligatoire, sans raison","Pour gagner des points dans un jeu vidéo"], correct:1,
+    fact:"Trier permet de recycler les matériaux (verre, papier, plastique) plutôt que de les jeter, et de préserver les ressources naturelles." },
+  { q:"Quel os protège le cerveau ?",
+    options:["Le fémur","Les côtes","Le crâne","La colonne vertébrale"], correct:2,
+    fact:"Le crâne est une boîte osseuse qui protège le cerveau des chocs." },
+];
+
+const OPTION_COLORS = ["var(--blue)","var(--orange)","var(--purple)","var(--teal)"];
+const OPTION_LETTERS = ["A","B","C","D"];
+
+/* ============================================================
+   INFOGRAPHIES — une illustration SVG par question du quiz
+   ============================================================ */
+const PALETTE = { blue:"#2D6CDF", orange:"#F2994A", purple:"#9B51E0", teal:"#1FA98A", yellow:"#FFC93C", green:"#2E9E5B", ink:"#FDFBFF", grey:"#9086AC" };
+
+const INFOGRAPHICS = [
+  // 0 — Planètes du système solaire
+  () => {
+    const cols = [PALETTE.blue,PALETTE.orange,PALETTE.purple,PALETTE.teal];
+    const radii = [7,9,8,12,11,14,13,10];
+    let planets = "";
+    for(let i=0;i<8;i++){
+      const x = 66 + i*32;
+      planets += `<circle cx="${x}" cy="100" r="${radii[i]}" fill="${cols[i%4]}"/>`;
+      planets += `<text x="${x}" y="130" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">${i+1}</text>`;
+    }
+    return `<svg viewBox="0 0 330 150" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="26" cy="100" r="20" fill="${PALETTE.yellow}"/>
+      <text x="26" y="107" font-size="18" text-anchor="middle">☀️</text>
+      ${planets}
+    </svg>`;
+  },
+  // 1 — Guépard, animal le plus rapide
+  () => `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <text x="70" y="100" font-size="64" text-anchor="middle">🐆</text>
+      <line x1="140" y1="60" x2="230" y2="60" stroke="${PALETTE.orange}" stroke-width="4" stroke-linecap="round"/>
+      <line x1="140" y1="85" x2="255" y2="85" stroke="${PALETTE.orange}" stroke-width="4" stroke-linecap="round"/>
+      <line x1="140" y1="110" x2="215" y2="110" stroke="${PALETTE.orange}" stroke-width="4" stroke-linecap="round"/>
+      <text x="240" y="150" font-size="22" font-weight="700" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">110 km/h</text>
+    </svg>`,
+  // 2 — Squelette, 206 os
+  () => `<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg">
+      <text x="55" y="90" font-size="50" text-anchor="middle">🦴</text>
+      <rect x="140" y="50" width="50" height="80" rx="6" fill="${PALETTE.blue}" opacity="0.45"/>
+      <text x="165" y="152" font-size="13" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">bébé ≈ 300</text>
+      <rect x="220" y="30" width="50" height="100" rx="6" fill="${PALETTE.teal}"/>
+      <text x="245" y="152" font-size="13" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">adulte = 206</text>
+    </svg>`,
+  // 3 — États de l'eau
+  () => `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="40" width="80" height="70" rx="14" fill="${PALETTE.blue}" opacity="0.25" stroke="${PALETTE.blue}" stroke-width="3"/>
+      <text x="60" y="85" font-size="34" text-anchor="middle">🧊</text>
+      <text x="60" y="128" font-size="13" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">Solide (0°C)</text>
+      <text x="128" y="85" font-size="26" text-anchor="middle">💧</text>
+      <text x="128" y="128" font-size="12" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">Liquide</text>
+      <text x="196" y="85" font-size="26" text-anchor="middle">☁️</text>
+      <text x="196" y="128" font-size="12" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">Gaz</text>
+      <path d="M100 100 L260 40" stroke="${PALETTE.orange}" stroke-width="0" />
+    </svg>`,
+  // 4 — Mars, la planète rouge
+  () => `<svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="150" cy="80" r="60" fill="#C1440E"/>
+      <ellipse cx="125" cy="60" rx="12" ry="7" fill="#8f3209" opacity="0.6"/>
+      <ellipse cx="175" cy="95" rx="16" ry="9" fill="#8f3209" opacity="0.6"/>
+      <ellipse cx="140" cy="105" rx="9" ry="5" fill="#8f3209" opacity="0.6"/>
+      <text x="150" y="150" font-size="13" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">Oxyde de fer = couleur rouille</text>
+    </svg>`,
+  // 5 — Lumière Soleil → Terre
+  () => `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+      <text x="40" y="80" font-size="46" text-anchor="middle">☀️</text>
+      <line x1="80" y1="70" x2="250" y2="70" stroke="${PALETTE.yellow}" stroke-width="4" stroke-dasharray="8 6"/>
+      <polygon points="250,63 268,70 250,77" fill="${PALETTE.yellow}"/>
+      <text x="280" y="80" font-size="40" text-anchor="middle">🌍</text>
+      <text x="165" y="45" font-size="13" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">150 000 000 km</text>
+      <text x="165" y="105" font-size="16" font-weight="700" fill="${PALETTE.yellow}" text-anchor="middle" font-family="Baloo 2">8 minutes</text>
+    </svg>`,
+  // 6 — La peau, plus grand organe
+  () => `<svg viewBox="0 0 260 200" xmlns="http://www.w3.org/2000/svg">
+      <text x="130" y="110" font-size="80" text-anchor="middle">🧍</text>
+      <circle cx="130" cy="100" r="65" fill="none" stroke="${PALETTE.orange}" stroke-width="3" stroke-dasharray="6 5"/>
+      <text x="130" y="185" font-size="16" font-weight="700" fill="${PALETTE.orange}" text-anchor="middle" font-family="Baloo 2">≈ 16% du poids du corps</text>
+    </svg>`,
+  // 7 — Le cheval dort debout
+  () => `<svg viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg">
+      <text x="120" y="95" font-size="70" text-anchor="middle">🐴</text>
+      <text x="185" y="45" font-size="24" text-anchor="middle">💤</text>
+      <line x1="95" y1="140" x2="95" y2="120" stroke="${PALETTE.teal}" stroke-width="4"/>
+      <line x1="145" y1="140" x2="145" y2="120" stroke="${PALETTE.teal}" stroke-width="4"/>
+      <text x="120" y="155" font-size="13" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">Pattes bloquées = pas de chute !</text>
+    </svg>`,
+  // 8 — Einstein et la relativité
+  () => `<svg viewBox="0 0 280 150" xmlns="http://www.w3.org/2000/svg">
+      <text x="70" y="90" font-size="60" text-anchor="middle">🧑‍🔬</text>
+      <text x="195" y="85" font-size="34" font-weight="800" fill="${PALETTE.purple}" text-anchor="middle" font-family="Baloo 2">E = mc²</text>
+      <text x="195" y="115" font-size="14" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">théorie publiée en 1915</text>
+    </svg>`,
+  // 9 — Baleine bleue, plus grand animal
+  () => `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="150" cy="55" rx="110" ry="26" fill="${PALETTE.blue}"/>
+      <polygon points="255,55 290,35 290,75" fill="${PALETTE.blue}"/>
+      <rect x="40" y="105" width="50" height="24" rx="4" fill="${PALETTE.orange}"/>
+      <rect x="100" y="105" width="50" height="24" rx="4" fill="${PALETTE.orange}"/>
+      <rect x="160" y="105" width="50" height="24" rx="4" fill="${PALETTE.orange}"/>
+      <text x="150" y="148" font-size="13" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">30 m ≈ 3 bus mis bout à bout</text>
+    </svg>`,
+  // 10 — Photosynthèse
+  () => `<svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+      <text x="60" y="55" font-size="34" text-anchor="middle">☀️</text>
+      <text x="150" y="110" font-size="56" text-anchor="middle">🍃</text>
+      <line x1="60" y1="70" x2="130" y2="95" stroke="${PALETTE.yellow}" stroke-width="3"/>
+      <text x="70" y="130" font-size="14" font-weight="700" fill="${PALETTE.orange}" font-family="Baloo 2">CO2 →</text>
+      <text x="205" y="90" font-size="14" font-weight="700" fill="${PALETTE.teal}" font-family="Baloo 2">→ O2</text>
+    </svg>`,
+  // 11 — Dents adulte (32)
+  () => {
+    const tooth = (x,y) => `<rect x="${x}" y="${y}" width="14" height="18" rx="5" fill="${PALETTE.ink}"/>`;
+    let babyRow = ""; for(let i=0;i<10;i++) babyRow += tooth(10+i*20, 30);
+    let adultRow = ""; for(let i=0;i<13;i++) adultRow += tooth(10+i*20, 110);
+    return `<svg viewBox="0 0 280 170" xmlns="http://www.w3.org/2000/svg">
+      ${babyRow}
+      <text x="140" y="70" font-size="14" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">Enfant : 20 dents de lait</text>
+      ${adultRow}
+      <text x="140" y="150" font-size="14" font-weight="700" fill="${PALETTE.yellow}" text-anchor="middle" font-family="Baloo 2">Adulte : 32 dents</text>
+    </svg>`;
+  },
+
+  // ---------- Infographies : questions programme CE2 / CM1 ----------
+  // 12 — Les 5 sens
+  () => `<svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg">
+      <text x="30" y="60" font-size="38" text-anchor="middle">👁️</text>
+      <text x="100" y="60" font-size="38" text-anchor="middle">👂</text>
+      <text x="170" y="60" font-size="38" text-anchor="middle">👃</text>
+      <text x="240" y="60" font-size="38" text-anchor="middle">👅</text>
+      <text x="300" y="60" font-size="38" text-anchor="middle">✋</text>
+      <text x="30" y="100" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">vue</text>
+      <text x="100" y="100" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">ouïe</text>
+      <text x="170" y="100" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">odorat</text>
+      <text x="240" y="100" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">goût</text>
+      <text x="300" y="100" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">toucher</text>
+    </svg>`,
+  // 13 — Le cœur pompe le sang
+  () => `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+      <text x="70" y="80" font-size="60" text-anchor="middle">❤️</text>
+      <polyline points="130,80 155,80 165,50 180,105 190,80 250,80" fill="none" stroke="${PALETTE.orange}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+      <text x="190" y="125" font-size="14" font-weight="700" fill="${PALETTE.orange}" text-anchor="middle" font-family="Baloo 2">≈ 100 000 battements / jour</text>
+    </svg>`,
+  // 14 — Le dioxygène respiré
+  () => `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+      <text x="70" y="80" font-size="56" text-anchor="middle">🙂</text>
+      <line x1="110" y1="55" x2="180" y2="35" stroke="${PALETTE.teal}" stroke-width="3"/>
+      <polygon points="180,35 168,32 172,44" fill="${PALETTE.teal}"/>
+      <text x="215" y="40" font-size="15" font-weight="700" fill="${PALETTE.teal}" font-family="Baloo 2">O2 inspiré</text>
+      <line x1="110" y1="95" x2="180" y2="112" stroke="${PALETTE.orange}" stroke-width="3"/>
+      <polygon points="180,112 168,109 173,120" fill="${PALETTE.orange}"/>
+      <text x="215" y="120" font-size="15" font-weight="700" fill="${PALETTE.orange}" font-family="Baloo 2">CO2 expiré</text>
+    </svg>`,
+  // 15 — Métamorphose
+  () => `<svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg">
+      <text x="30" y="70" font-size="34" text-anchor="middle">🥚</text>
+      <text x="100" y="70" font-size="34" text-anchor="middle">🐛</text>
+      <rect x="155" y="48" width="30" height="44" rx="15" fill="${PALETTE.purple}" opacity="0.7"/>
+      <text x="240" y="70" font-size="38" text-anchor="middle">🦋</text>
+      <text x="30" y="105" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">œuf</text>
+      <text x="100" y="105" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">chenille</text>
+      <text x="170" y="105" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">chrysalide</text>
+      <text x="240" y="105" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">papillon</text>
+    </svg>`,
+  // 16 — Invertébré (escargot)
+  () => `<svg viewBox="0 0 280 150" xmlns="http://www.w3.org/2000/svg">
+      <text x="80" y="80" font-size="60" text-anchor="middle">🐌</text>
+      <text x="80" y="120" font-size="13" font-weight="700" fill="${PALETTE.teal}" text-anchor="middle" font-family="Baloo 2">invertébré</text>
+      <text x="80" y="138" font-size="10" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">(coquille externe)</text>
+      <text x="215" y="75" font-size="42" text-anchor="middle">🐟</text>
+      <text x="215" y="120" font-size="13" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">vertébré</text>
+      <text x="215" y="138" font-size="10" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">(squelette interne)</text>
+    </svg>`,
+  // 17 — Rotation de la Terre (jour/nuit)
+  () => `<svg viewBox="0 0 280 150" xmlns="http://www.w3.org/2000/svg">
+      <text x="60" y="80" font-size="40" text-anchor="middle">☀️</text>
+      <text x="190" y="80" font-size="56" text-anchor="middle">🌍</text>
+      <path d="M215 45 A28 28 0 1 1 213 45" fill="none" stroke="${PALETTE.yellow}" stroke-width="3"/>
+      <text x="190" y="130" font-size="15" font-weight="700" fill="${PALETTE.yellow}" text-anchor="middle" font-family="Baloo 2">1 tour ≈ 24 heures</text>
+    </svg>`,
+  // 18 — Révolution autour du Soleil (année)
+  () => `<svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+      <text x="140" y="90" font-size="34" text-anchor="middle">☀️</text>
+      <ellipse cx="140" cy="85" rx="110" ry="45" fill="none" stroke="${PALETTE.purple}" stroke-width="2.5" stroke-dasharray="5 5"/>
+      <text x="250" y="85" font-size="30" text-anchor="middle">🌍</text>
+      <text x="140" y="145" font-size="15" font-weight="700" fill="${PALETTE.purple}" text-anchor="middle" font-family="Baloo 2">1 tour complet ≈ 365 jours</text>
+    </svg>`,
+  // 19 — Circuit électrique fermé
+  () => `<svg viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg">
+      <rect x="40" y="40" width="180" height="90" rx="8" fill="none" stroke="${PALETTE.grey}" stroke-width="4"/>
+      <rect x="30" y="65" width="30" height="40" rx="4" fill="${PALETTE.orange}"/>
+      <text x="45" y="90" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">+ −</text>
+      <circle cx="220" cy="85" r="22" fill="${PALETTE.yellow}"/>
+      <text x="220" y="92" font-size="20" text-anchor="middle">💡</text>
+      <text x="130" y="150" font-size="14" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">Circuit fermé = le courant circule</text>
+    </svg>`,
+  // 20 — Métaux conducteurs
+  () => `<svg viewBox="0 0 260 140" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40 70 Q60 40 80 70 T120 70 T160 70 T200 70" fill="none" stroke="${PALETTE.orange}" stroke-width="6" stroke-linecap="round"/>
+      <text x="220" y="82" font-size="34" text-anchor="middle">⚡</text>
+      <text x="130" y="120" font-size="14" font-weight="700" fill="${PALETTE.orange}" text-anchor="middle" font-family="Baloo 2">Les métaux conduisent bien l'électricité</text>
+    </svg>`,
+  // 21 — Mélange eau + sable (hétérogène)
+  () => `<svg viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg">
+      <path d="M55 30 L145 30 L135 150 Q100 160 65 150 Z" fill="none" stroke="${PALETTE.grey}" stroke-width="3"/>
+      <rect x="60" y="60" width="80" height="60" fill="${PALETTE.blue}" opacity="0.4"/>
+      <rect x="63" y="115" width="74" height="32" fill="#C9A876"/>
+      <text x="100" y="163" font-size="13" font-weight="700" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">Hétérogène : on voit les deux</text>
+    </svg>`,
+  // 22 — Dissolution du sucre (homogène)
+  () => `<svg viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg">
+      <path d="M55 30 L145 30 L135 150 Q100 160 65 150 Z" fill="${PALETTE.blue}" opacity="0.25" stroke="${PALETTE.grey}" stroke-width="3"/>
+      <rect x="85" y="45" width="12" height="12" fill="#fff" opacity="0.9"/>
+      <rect x="102" y="60" width="10" height="10" fill="#fff" opacity="0.5"/>
+      <rect x="90" y="75" width="8" height="8" fill="#fff" opacity="0.25"/>
+      <text x="100" y="163" font-size="13" font-weight="700" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">Homogène : invisible mais toujours là</text>
+    </svg>`,
+  // 23 — Besoins des plantes
+  () => `<svg viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg">
+      <text x="55" y="40" font-size="28" text-anchor="middle">☀️</text>
+      <text x="130" y="35" font-size="24" text-anchor="middle">💧</text>
+      <text x="205" y="40" font-size="26" text-anchor="middle">💨</text>
+      <line x1="70" y1="55" x2="120" y2="95" stroke="${PALETTE.yellow}" stroke-width="2.5"/>
+      <line x1="130" y1="50" x2="128" y2="95" stroke="${PALETTE.blue}" stroke-width="2.5"/>
+      <line x1="195" y1="55" x2="150" y2="95" stroke="${PALETTE.teal}" stroke-width="2.5"/>
+      <text x="130" y="130" font-size="50" text-anchor="middle">🌱</text>
+    </svg>`,
+  // 24 — Énergie renouvelable
+  () => `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+      <text x="60" y="80" font-size="42" text-anchor="middle">🌬️</text>
+      <text x="140" y="80" font-size="42" text-anchor="middle">☀️</text>
+      <text x="220" y="80" font-size="42" text-anchor="middle">💧</text>
+      <text x="140" y="125" font-size="14" font-weight="700" fill="${PALETTE.teal}" text-anchor="middle" font-family="Baloo 2">Des sources qui ne s'épuisent pas</text>
+    </svg>`,
+  // 25 — Rôle des poumons
+  () => `<svg viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
+      <text x="130" y="85" font-size="64" text-anchor="middle">🫁</text>
+      <text x="60" y="35" font-size="13" font-weight="700" fill="${PALETTE.teal}" font-family="Baloo 2">O2 →</text>
+      <text x="185" y="35" font-size="13" font-weight="700" fill="${PALETTE.orange}" font-family="Baloo 2">← CO2</text>
+      <text x="130" y="135" font-size="13" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">Échange des gaz respiratoires</text>
+    </svg>`,
+  // 26 — Chaîne alimentaire
+  () => `<svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+      <text x="40" y="60" font-size="34" text-anchor="middle">🌾</text>
+      <text x="95" y="60" font-size="24" text-anchor="middle">→</text>
+      <text x="150" y="60" font-size="34" text-anchor="middle">🐇</text>
+      <text x="205" y="60" font-size="24" text-anchor="middle">→</text>
+      <text x="260" y="60" font-size="34" text-anchor="middle">🦊</text>
+      <text x="40" y="100" font-size="11" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">herbe</text>
+      <text x="150" y="100" font-size="11" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">lapin</text>
+      <text x="260" y="100" font-size="11" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">renard</text>
+    </svg>`,
+  // 27 — Phases de la Lune
+  () => `<svg viewBox="0 0 320 110" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="55" r="24" fill="${PALETTE.ink}" stroke="${PALETTE.grey}" stroke-width="2"/>
+      <path d="M120 31 A24 24 0 0 1 120 79 Z" fill="${PALETTE.yellow}"/>
+      <circle cx="120" cy="55" r="24" fill="none" stroke="${PALETTE.grey}" stroke-width="2"/>
+      <circle cx="200" cy="55" r="24" fill="${PALETTE.yellow}"/>
+      <path d="M280 31 A24 24 0 0 0 280 79 Z" fill="${PALETTE.yellow}"/>
+      <circle cx="280" cy="55" r="24" fill="none" stroke="${PALETTE.grey}" stroke-width="2"/>
+      <text x="40" y="95" font-size="10" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">nouvelle</text>
+      <text x="120" y="95" font-size="10" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">1er quartier</text>
+      <text x="200" y="95" font-size="10" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">pleine lune</text>
+      <text x="280" y="95" font-size="10" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">dernier quartier</text>
+    </svg>`,
+  // 28 — Tri des déchets / recyclage
+  () => `<svg viewBox="0 0 280 140" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="50" width="55" height="65" rx="6" fill="${PALETTE.teal}"/>
+      <rect x="112" y="50" width="55" height="65" rx="6" fill="${PALETTE.blue}"/>
+      <rect x="204" y="50" width="55" height="65" rx="6" fill="${PALETTE.orange}"/>
+      <text x="47" y="90" font-size="22" text-anchor="middle">♻️</text>
+      <text x="139" y="90" font-size="22" text-anchor="middle">📦</text>
+      <text x="231" y="90" font-size="22" text-anchor="middle">🍾</text>
+      <text x="140" y="130" font-size="13" font-weight="700" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">Trier pour recycler et préserver la planète</text>
+    </svg>`,
+  // 29 — Le crâne protège le cerveau
+  () => `<svg viewBox="0 0 220 150" xmlns="http://www.w3.org/2000/svg">
+      <text x="110" y="90" font-size="70" text-anchor="middle">💀</text>
+      <circle cx="110" cy="70" r="42" fill="none" stroke="${PALETTE.yellow}" stroke-width="3" stroke-dasharray="5 5"/>
+      <text x="110" y="135" font-size="14" font-weight="700" fill="${PALETTE.yellow}" text-anchor="middle" font-family="Baloo 2">Le crâne protège le cerveau</text>
+    </svg>`,
+];
+
+/* ============================================================
+   NAVIGATION ENTRE ÉCRANS
+   ============================================================ */
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("screen-"+btn.dataset.screen).classList.add("active");
+  });
+});
+
+/* ============================================================
+   ACTIVITÉ 1 — ÉTIQUETTES À GLISSER
+   ============================================================ */
+const tray = document.getElementById("tray");
+const slotsWrap = document.getElementById("slots");
+const statusLine = document.getElementById("statusLine");
+
+function buildBoard(order){
+  tray.innerHTML = "";
+  slotsWrap.innerHTML = "";
+  order.forEach(key=>{
+    const step = STEPS.find(s=>s.key===key);
+    const chip = document.createElement("div");
+    chip.className = "chip";
+    chip.dataset.key = step.key;
+    chip.style.setProperty("--chip-color", step.color);
+    chip.innerHTML = `<span class="chip-icon">${step.icon}</span><span class="chip-label">${step.label}</span>`;
+    tray.appendChild(chip);
+    attachDrag(chip);
+  });
+  for(let i=0;i<4;i++){
+    const wrap = document.createElement("div");
+    wrap.className = "slot-wrap";
+    const idx = document.createElement("div");
+    idx.className = "slot-index";
+    idx.textContent = ["1er","2e","3e","4e"][i];
+    const slot = document.createElement("div");
+    slot.className = "slot";
+    slot.dataset.index = i;
+    slot.innerHTML = `<span class="slot-placeholder">dépose ici</span>`;
+    wrap.appendChild(idx);
+    wrap.appendChild(slot);
+    slotsWrap.appendChild(wrap);
+  }
+  statusLine.textContent = "";
+}
+
+function attachDrag(chip){
+  chip.addEventListener("pointerdown", (e)=>{
+    e.preventDefault();
+    chip.setPointerCapture(e.pointerId);
+    const rect = chip.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+
+    const ghost = chip.cloneNode(true);
+    ghost.classList.add("ghost");
+    ghost.style.width = rect.width+"px";
+    ghost.style.left = rect.left+"px";
+    ghost.style.top = rect.top+"px";
+    document.body.appendChild(ghost);
+    chip.classList.add("dim");
+
+    let lastTarget = null;
+
+    function move(ev){
+      ghost.style.left = (ev.clientX - offsetX)+"px";
+      ghost.style.top = (ev.clientY - offsetY)+"px";
+      ghost.style.display = "none";
+      const under = document.elementFromPoint(ev.clientX, ev.clientY);
+      ghost.style.display = "";
+      const slot = under ? under.closest(".slot") : null;
+      if(lastTarget && lastTarget !== slot) lastTarget.classList.remove("hover-target");
+      if(slot && !slot.classList.contains("filled")){ slot.classList.add("hover-target"); }
+      lastTarget = slot;
+    }
+
+    function up(ev){
+      chip.removeEventListener("pointermove", move);
+      chip.removeEventListener("pointerup", up);
+      try{ chip.releasePointerCapture(ev.pointerId); }catch(err){}
+      ghost.style.display = "none";
+      const under = document.elementFromPoint(ev.clientX, ev.clientY);
+      ghost.style.display = "";
+      ghost.remove();
+      chip.classList.remove("dim");
+      document.querySelectorAll(".slot.hover-target").forEach(s=>s.classList.remove("hover-target"));
+
+      const targetSlot = under ? under.closest(".slot") : null;
+      const targetTray = under ? under.closest("#tray") : null;
+
+      if(targetSlot){
+        placeInSlot(chip, targetSlot);
+      } else if(!targetTray){
+        // dropped outside any valid zone -> stays where it was (tray or its slot)
+      }
+      // if dropped back on tray, nothing to do (it already lives there or gets sent back below)
+      if(targetTray && chip.parentElement !== tray){
+        returnToTray(chip);
+      }
+    }
+
+    chip.addEventListener("pointermove", move);
+    chip.addEventListener("pointerup", up);
+  });
+}
+
+function placeInSlot(chip, slot){
+  // if slot already occupied by another chip, send that chip back to tray first
+  if(slot.classList.contains("filled")){
+    const occupant = slot.querySelector(".chip");
+    if(occupant && occupant !== chip) returnToTray(occupant);
+  }
+  // if chip was already in a different slot, free that slot
+  const prevSlot = chip.closest(".slot");
+  if(prevSlot) clearSlot(prevSlot);
+
+  slot.innerHTML = "";
+  slot.appendChild(chip);
+  slot.classList.add("filled");
+  slot.classList.remove("correct","incorrect");
+  chip.classList.add("placed");
+}
+
+function clearSlot(slot){
+  slot.classList.remove("filled","correct","incorrect");
+  slot.innerHTML = `<span class="slot-placeholder">dépose ici</span>`;
+}
+
+function returnToTray(chip){
+  const prevSlot = chip.closest(".slot");
+  if(prevSlot) clearSlot(prevSlot);
+  chip.classList.remove("placed");
+  tray.appendChild(chip);
+}
+
+document.getElementById("btnCheck").addEventListener("click", ()=>{
+  const slots = Array.from(slotsWrap.querySelectorAll(".slot"));
+  let correctCount = 0;
+  let allFilled = true;
+  slots.forEach((slot,i)=>{
+    const chip = slot.querySelector(".chip");
+    slot.classList.remove("correct","incorrect");
+    if(!chip){ allFilled = false; return; }
+    const step = STEPS.find(s=>s.key===chip.dataset.key);
+    if(step.order === i+1){ slot.classList.add("correct"); correctCount++; }
+    else{ slot.classList.add("incorrect"); }
+  });
+  if(!allFilled){
+    statusLine.textContent = "Place une étiquette dans chaque case avant de vérifier !";
+    statusLine.style.color = "var(--orange)";
+    return;
+  }
+  if(correctCount === 4){
+    statusLine.textContent = "Bravo ! L'ordre est parfait. 🎉";
+    statusLine.style.color = "var(--green)";
+    burstEmoji();
+  } else {
+    statusLine.textContent = correctCount + " sur 4 bien placées. Essaie encore !";
+    statusLine.style.color = "var(--yellow)";
+  }
+});
+
+document.getElementById("btnReset").addEventListener("click", ()=> buildBoard(SHUFFLE_ORDER));
+
+document.getElementById("btnSolution").addEventListener("click", ()=>{
+  const slots = Array.from(slotsWrap.querySelectorAll(".slot"));
+  STEPS.forEach(step=>{
+    let chip = tray.querySelector(`.chip[data-key="${step.key}"]`) ||
+               slotsWrap.querySelector(`.chip[data-key="${step.key}"]`);
+    placeInSlot(chip, slots[step.order-1]);
+  });
+  slots.forEach(s=>{ s.classList.remove("incorrect"); s.classList.add("correct"); });
+  statusLine.textContent = "Voici l'ordre de la démarche scientifique.";
+  statusLine.style.color = "var(--yellow)";
+});
+
+function burstEmoji(){
+  const emojis = ["✨","🎉","⭐","🧪"];
+  const rect = slotsWrap.getBoundingClientRect();
+  for(let i=0;i<8;i++){
+    const span = document.createElement("span");
+    span.className = "float-emoji";
+    span.textContent = emojis[i % emojis.length];
+    span.style.left = (rect.left + Math.random()*rect.width)+"px";
+    span.style.top = (rect.top + rect.height/2)+"px";
+    document.body.appendChild(span);
+    setTimeout(()=>span.remove(), 1200);
+  }
+}
+
+buildBoard(SHUFFLE_ORDER);
+
+/* ============================================================
+   ACTIVITÉ 2 — QUIZ PAR ÉQUIPES
+   ============================================================ */
+const TEAM_NAMES = { A:"Équipe A", B:"Équipe B", C:"Équipe C", D:"Équipe D", E:"Équipe E" };
+const scores = { A:0, B:0, C:0, D:0, E:0 };
+const scoreboard = document.getElementById("scoreboard");
+
+function renderScoreboard(){
+  scoreboard.innerHTML = "";
+  Object.keys(scores).forEach(team=>{
+    const card = document.createElement("div");
+    card.className = "team-card";
+    card.dataset.team = team;
+    card.innerHTML = `
+      <button class="team-reset" data-team="${team}" title="Réinitialiser">↺</button>
+      <span class="team-name">${TEAM_NAMES[team]}</span>
+      <span class="team-score">${scores[team]}</span>
+      <span class="team-hint">touche pour +1 point</span>
+    `;
+    scoreboard.appendChild(card);
+  });
+  scoreboard.querySelectorAll(".team-card").forEach(card=>{
+    card.addEventListener("click", ()=>{
+      const team = card.dataset.team;
+      scores[team] += 1;
+      renderScoreboard();
+      // pulse la carte mise à jour
+      const fresh = scoreboard.querySelector(`.team-card[data-team="${team}"]`);
+      if(fresh){ fresh.classList.add("pulse"); setTimeout(()=>fresh.classList.remove("pulse"), 350); }
+    });
+  });
+  scoreboard.querySelectorAll(".team-reset").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      scores[btn.dataset.team] = 0;
+      renderScoreboard();
+    });
+  });
+}
+renderScoreboard();
+
+let quizIndex = 0;
+let selectedOption = null;
+const quizProgress = document.getElementById("quizProgress");
+const quizQuestion = document.getElementById("quizQuestion");
+const optionsGrid = document.getElementById("optionsGrid");
+const factPanel = document.getElementById("factPanel");
+const btnPrev = document.getElementById("btnPrev");
+const btnNext = document.getElementById("btnNext");
+const btnReveal = document.getElementById("btnReveal");
+const btnUnderstand = document.getElementById("btnUnderstand");
+
+function renderQuiz(){
+  const item = QUIZ[quizIndex];
+  selectedOption = null;
+  quizProgress.textContent = `Question ${quizIndex+1} / ${QUIZ.length}`;
+  quizQuestion.textContent = item.q;
+  optionsGrid.innerHTML = "";
+  item.options.forEach((opt,i)=>{
+    const b = document.createElement("button");
+    b.className = "option-btn";
+    b.style.background = OPTION_COLORS[i];
+    b.innerHTML = `<span class="option-letter">${OPTION_LETTERS[i]}</span><span>${opt}</span>`;
+    b.addEventListener("click", ()=>{
+      optionsGrid.querySelectorAll(".option-btn").forEach(o=>o.classList.remove("selected"));
+      b.classList.add("selected");
+      selectedOption = i;
+    });
+    optionsGrid.appendChild(b);
+  });
+  factPanel.classList.remove("show");
+  factPanel.textContent = "";
+  btnReveal.disabled = false;
+  btnPrev.disabled = quizIndex === 0;
+  btnNext.disabled = quizIndex === QUIZ.length-1;
+}
+
+btnReveal.addEventListener("click", ()=>{
+  const item = QUIZ[quizIndex];
+  const buttons = Array.from(optionsGrid.children);
+  buttons.forEach((b,i)=>{
+    if(i === item.correct) b.classList.add("correct");
+    else b.classList.add("muted");
+  });
+  factPanel.textContent = "💡 Le sais-tu ? " + item.fact;
+  factPanel.classList.add("show");
+  btnReveal.disabled = true;
+});
+
+btnPrev.addEventListener("click", ()=>{ if(quizIndex>0){ quizIndex--; renderQuiz(); } });
+btnNext.addEventListener("click", ()=>{ if(quizIndex<QUIZ.length-1){ quizIndex++; renderQuiz(); } });
+document.getElementById("btnRestart").addEventListener("click", ()=>{ quizIndex = 0; renderQuiz(); });
+
+renderQuiz();
+
+/* ---------- modale infographie ("Je comprends") ---------- */
+const infoModal = document.getElementById("infoModal");
+const infoModalTitle = document.getElementById("infoModalTitle");
+const infoModalSvg = document.getElementById("infoModalSvg");
+const infoModalCaption = document.getElementById("infoModalCaption");
+
+btnUnderstand.addEventListener("click", ()=>{
+  const item = QUIZ[quizIndex];
+  infoModalTitle.textContent = item.q;
+  infoModalSvg.innerHTML = INFOGRAPHICS[quizIndex] ? INFOGRAPHICS[quizIndex]() : "";
+  infoModalCaption.textContent = item.fact;
+  infoModal.classList.add("show");
+});
+document.getElementById("infoModalClose").addEventListener("click", ()=> infoModal.classList.remove("show"));
+infoModal.addEventListener("click", (e)=>{ if(e.target === infoModal) infoModal.classList.remove("show"); });
+
+/* ---------- modale résultats / classement ---------- */
+const resultsModal = document.getElementById("resultsModal");
+const trophyBanner = document.getElementById("trophyBanner");
+const resultsPodium = document.getElementById("resultsPodium");
+
+document.getElementById("btnResults").addEventListener("click", ()=>{
+  const ranked = Object.keys(scores)
+    .map(team=>({ team, name:TEAM_NAMES[team], score:scores[team] }))
+    .sort((a,b)=> b.score - a.score);
+  const topScore = ranked[0].score;
+  const winners = ranked.filter(r=>r.score === topScore);
+
+  if(topScore === 0){
+    trophyBanner.innerHTML = `
+      <span class="emoji">🔬</span>
+      <p class="title">Le quiz commence à peine !</p>
+      <p class="subtitle">Cliquez sur une équipe pour lui donner son premier point.</p>`;
+  } else if(winners.length === 1){
+    trophyBanner.innerHTML = `
+      <span class="emoji">🏆</span>
+      <p class="title">Trophée des mini-scientifiques</p>
+      <p class="subtitle">${winners[0].name} remporte la partie avec ${winners[0].score} point${winners[0].score>1?"s":""} !</p>`;
+  } else {
+    const names = winners.map(w=>w.name).join(" et ");
+    trophyBanner.innerHTML = `
+      <span class="emoji">🏆</span>
+      <p class="title">Trophée des mini-scientifiques</p>
+      <p class="subtitle">Égalité parfaite entre ${names} avec ${topScore} points !</p>`;
+  }
+
+  resultsPodium.innerHTML = ranked.map((r,i)=>`
+    <div class="results-row ${r.score===topScore && topScore>0 ? "winner":""}">
+      <span class="results-rank">${i+1}</span>
+      <span class="results-name">${r.name}${r.score===topScore && topScore>0 ? " 🏆":""}</span>
+      <span class="results-score">${r.score} pt${r.score>1?"s":""}</span>
+    </div>`).join("");
+
+  resultsModal.classList.add("show");
+});
+document.getElementById("resultsModalClose").addEventListener("click", ()=> resultsModal.classList.remove("show"));
+resultsModal.addEventListener("click", (e)=>{ if(e.target === resultsModal) resultsModal.classList.remove("show"); });
+</script>
+</body>
+</html>
