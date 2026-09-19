@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histoire CM1 — Quiz de culture historique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#2E1A47;
+    --indigo-deep:#20122F;
+    --indigo-soft:#3D2361;
+    --yellow:#FFC93C;
+    --yellow-deep:#E8AE13;
+    --blue:#2D6CDF;
+    --orange:#F2994A;
+    --purple:#9B51E0;
+    --teal:#1FA98A;
+    --green:#2E9E5B;
+    --green-light:#E1F6E9;
+    --ink:#241442;
+    --paper:#FDFBFF;
+    --grey:#9086AC;
+    --grey-line:#DCD4EE;
+  }
+  *{box-sizing:border-box;}
+  /* Tout doit tenir dans un seul écran projeté : pas de défilement. */
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;}
+  body{
+    height:100%;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(255,201,60,0.16), transparent 42%),
+      radial-gradient(circle at 92% 85%, rgba(155,81,224,0.22), transparent 40%),
+      var(--indigo);
+    font-family:'Nunito', sans-serif;
+    color:var(--paper);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{ font-family:'Baloo 2', sans-serif; }
+
+  .app{ height:100vh; display:flex; flex-direction:column; }
+
+  /* ---------- barre du haut ---------- */
+  .topbar{
+    flex:none;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:clamp(8px,1.4vh,18px) clamp(14px,2vw,28px); gap:16px; flex-wrap:wrap;
+    background:var(--indigo-deep);
+    border-bottom:3px solid var(--indigo-soft);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-badge{
+    width:44px; height:44px; border-radius:14px; background:var(--yellow);
+    display:flex; align-items:center; justify-content:center; font-size:22px;
+    flex:none;
+  }
+  .brand-text{ font-family:'Baloo 2', sans-serif; font-weight:700; font-size:1.15rem; }
+  .brand-text small{ display:block; font-family:'Nunito',sans-serif; font-weight:600; font-size:0.72rem; color:var(--grey); }
+  .tabs{ display:flex; gap:8px; flex-wrap:wrap; }
+  .tab-btn{
+    font-family:'Baloo 2', sans-serif; font-weight:600;
+    font-size:clamp(0.75rem,1.6vh,1rem);
+    background:transparent; color:var(--paper); border:2px solid var(--indigo-soft);
+    padding:clamp(6px,1.1vh,10px) clamp(12px,1.4vw,20px);
+    border-radius:999px; cursor:pointer; transition:all .15s ease; white-space:nowrap;
+  }
+  .tab-btn.active{ background:var(--yellow); color:var(--ink); border-color:var(--yellow); }
+  .tab-btn:not(.active):hover{ border-color:var(--yellow); }
+
+  .screen{
+    display:none; flex:1; min-height:0; width:100%;
+    max-width:1280px; margin:0 auto;
+    padding:clamp(10px,2vh,26px) clamp(16px,2.4vw,34px) clamp(10px,2vh,24px);
+  }
+  .screen.active{ display:flex; flex-direction:column; }
+
+  .screen-head{ flex:none; margin-bottom:clamp(6px,1.2vh,14px); }
+  .screen-head h1{ font-size:clamp(1.05rem,2.6vh,1.85rem); margin:0; font-weight:700; }
+  .screen-head p{ margin:4px 0 0; color:#D9CCF0; font-size:clamp(0.75rem,1.6vh,1rem); line-height:1.4; }
+
+  .btn{
+    font-family:'Baloo 2', sans-serif; font-weight:600; font-size:clamp(0.78rem,1.7vh,1rem);
+    border-radius:999px; padding:clamp(9px,1.5vh,14px) clamp(14px,1.6vw,26px); border:2px solid transparent;
+    cursor:pointer; transition:transform .1s ease, filter .1s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn-primary{ background:var(--yellow); color:var(--ink); }
+  .btn-primary:hover{ filter:brightness(1.05); }
+  .btn-ghost{ background:transparent; color:var(--paper); border-color:var(--indigo-soft); }
+  .btn-ghost:hover{ border-color:var(--yellow); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  /* ================= QUIZ ================= */
+  .quiz-header-row{ flex:none; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:clamp(8px,1.6vh,20px); }
+  .scoreboard{
+    display:flex; gap:14px; flex-wrap:wrap;
+  }
+  .team-card{
+    position:relative; background:var(--indigo-deep); border-radius:14px;
+    padding:clamp(6px,1.1vh,14px) clamp(10px,1.2vw,20px);
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    min-width:clamp(86px,8vw,118px);
+    cursor:pointer; border:2px solid transparent; user-select:none;
+    transition:transform .08s ease, border-color .15s ease, background .15s ease;
+  }
+  .team-card:hover{ border-color:var(--yellow); }
+  .team-card:active{ transform:scale(0.95); }
+  .team-card.pulse{ animation:teamPulse .35s ease; }
+  @keyframes teamPulse{
+    0%{ transform:scale(1); } 40%{ transform:scale(1.12); } 100%{ transform:scale(1); }
+  }
+  .team-name{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:clamp(0.72rem,1.5vh,0.95rem); }
+  .team-score{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:clamp(1.15rem,3vh,1.9rem); line-height:1.1; }
+  .team-hint{ font-size:clamp(0.55rem,1.1vh,0.68rem); color:var(--grey); font-family:'Nunito',sans-serif; }
+  .team-reset{
+    position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%;
+    background:var(--indigo-soft); color:#fff; border:none; cursor:pointer; font-size:0.75rem;
+    display:flex; align-items:center; justify-content:center; opacity:0.7;
+  }
+  .team-reset:hover{ opacity:1; background:var(--orange); }
+  .btn-trophy{
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:0.95rem;
+    background:var(--indigo-deep); color:var(--yellow); border:2px solid var(--yellow-deep);
+    padding:12px 20px; border-radius:999px; cursor:pointer; white-space:nowrap;
+  }
+  .btn-trophy:hover{ background:var(--indigo-soft); }
+
+  .quiz-progress{ flex:none; font-family:'Baloo 2',sans-serif; color:var(--yellow); font-weight:600; margin-bottom:clamp(4px,0.8vh,10px); font-size:clamp(0.78rem,1.6vh,1rem); }
+  .quiz-question{ flex:none; font-size:clamp(1.1rem,3.3vh,2.25rem); font-weight:700; margin:0 0 clamp(10px,2vh,24px); max-width:1200px; line-height:1.25; }
+
+  /* les 4 réponses occupent toute la hauteur restante : grosses cibles au TBI */
+  .options-grid{
+    flex:1 1 auto; min-height:0;
+    display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;
+    gap:clamp(8px,1.4vh,16px); max-width:1060px; max-height:clamp(180px,52vh,540px);
+  }
+  .option-btn{
+    display:flex; align-items:center; gap:clamp(8px,1vw,14px); text-align:left;
+    border-radius:14px; padding:clamp(10px,1.8vh,22px) clamp(14px,1.6vw,28px); border:none; cursor:pointer;
+    font-family:'Nunito',sans-serif; font-weight:700; font-size:clamp(0.92rem,2.9vh,1.95rem); line-height:1.25; color:#fff;
+    transition:transform .1s ease, opacity .2s ease, filter .15s ease;
+  }
+  .option-btn:hover{ filter:brightness(1.06); }
+  .option-btn:active{ transform:scale(0.98); }
+  .option-letter{
+    width:clamp(30px,5.4vh,58px); height:clamp(30px,5.4vh,58px); font-size:clamp(0.85rem,2.6vh,1.7rem);
+    border-radius:50%; background:rgba(255,255,255,0.28);
+    display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',sans-serif;
+    font-weight:700; flex:none;
+  }
+  .option-btn.correct{ outline:3px solid var(--green); background:var(--green) !important; }
+  .option-btn.muted{ opacity:0.35; }
+  .option-btn.selected{ outline:4px solid #FFFFFF; box-shadow:0 0 0 3px rgba(255,255,255,0.25); }
+  .option-btn.selected.correct{ outline:4px solid #FFFFFF; }
+
+  .fact-panel{
+    display:none; flex:none; margin-top:clamp(8px,1.6vh,18px); max-width:1060px;
+    background:var(--indigo-deep);
+    border-radius:14px; padding:clamp(9px,1.5vh,18px) clamp(12px,1.2vw,20px);
+    font-style:italic; line-height:1.45; font-size:clamp(0.78rem,1.7vh,1.05rem);
+    border-left:5px solid var(--yellow);
+    max-height:clamp(58px,13vh,130px); overflow-y:auto;
+  }
+  .fact-panel.show{ display:block; }
+
+  .quiz-controls{
+    flex:none; margin-top:auto; padding-top:clamp(8px,1.6vh,20px);
+    display:flex; justify-content:space-between; align-items:center; max-width:1060px; flex-wrap:wrap; gap:12px;
+  }
+  .quiz-nav{ display:flex; gap:12px; }
+  .quiz-actions{ display:flex; gap:12px; flex-wrap:wrap; }
+
+  /* ---------- modales (infographie + résultats) ---------- */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(15,7,26,0.78);
+    align-items:center; justify-content:center; z-index:800; padding:24px;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-box{
+    background:var(--indigo-deep); border-radius:22px; padding:30px 34px 26px;
+    max-width:620px; width:100%; max-height:88vh; overflow-y:auto; position:relative;
+    border:2px solid var(--indigo-soft);
+  }
+  .modal-close{
+    position:absolute; top:16px; right:16px; width:36px; height:36px; border-radius:50%;
+    background:var(--indigo-soft); color:#fff; border:none; font-size:1.1rem; cursor:pointer;
+  }
+  .modal-close:hover{ background:var(--orange); }
+  .modal-title{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.3rem; margin:0 0 16px; padding-right:30px; }
+  .modal-svg-wrap{ display:flex; justify-content:center; margin-bottom:18px; }
+  .modal-svg-wrap svg{ width:100%; max-width:340px; height:auto; }
+  .modal-caption{ font-style:italic; color:#D9CCF0; line-height:1.55; text-align:center; margin:0; }
+
+  .results-podium{ display:flex; flex-direction:column; gap:12px; margin-top:10px; }
+  .results-row{
+    display:flex; align-items:center; gap:14px; background:rgba(255,255,255,0.04);
+    border-radius:14px; padding:14px 18px;
+  }
+  .results-row.winner{ background:rgba(255,201,60,0.14); border:2px solid var(--yellow); }
+  .results-rank{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.2rem; width:28px; text-align:center; }
+  .results-name{ flex:1; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.05rem; }
+  .results-score{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.2rem; color:var(--yellow); }
+  .trophy-banner{ text-align:center; margin-bottom:20px; }
+  .trophy-banner .emoji{ font-size:3rem; display:block; margin-bottom:8px; }
+  .trophy-banner .title{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1.4rem; color:var(--yellow); margin:0 0 4px; }
+  .trophy-banner .subtitle{ color:#D9CCF0; margin:0; }
+
+  @media (max-width:640px){
+    .quiz-question{ font-size:1.35rem; }
+    .options-grid{ grid-template-columns:1fr; }
+  }
+
+  /* ================= RÉSUMÉ / CE QU'IL FAUT RETENIR ================= */
+  .resume-grid{
+    flex:1; min-height:0;
+    display:grid; grid-template-columns:1fr 1fr; gap:clamp(10px,1.8vh,20px); align-content:stretch;
+  }
+  .resume-grid.one-col{ grid-template-columns:1fr; }
+  @media (max-width:820px){ .resume-grid{ grid-template-columns:1fr; } }
+  .resume-card{
+    background:var(--indigo-deep); border-radius:16px;
+    padding:clamp(14px,2.4vh,30px) clamp(16px,1.8vw,32px);
+    border:2px solid var(--indigo-soft); min-height:0; overflow-y:auto;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .resume-card h3{
+    margin:0 0 clamp(8px,1.6vh,18px); font-size:clamp(0.95rem,2.5vh,1.6rem); font-weight:700; color:var(--yellow);
+    display:flex; align-items:center; gap:10px;
+  }
+  .resume-card p{ margin:0 0 clamp(6px,1.3vh,14px); line-height:1.5; color:#EAE1FA; font-size:clamp(0.85rem,2.1vh,1.4rem); }
+  .resume-card p:last-child{ margin-bottom:0; }
+  .resume-card .quote{ font-style:italic; color:#D9CCF0; }
+  .resume-card .src{ font-size:clamp(0.62rem,1.3vh,0.8rem); color:var(--grey); }
+  .resume-full{ grid-column:1 / -1; }
+
+  .mini-frise{ margin:14px 0 10px; }
+  .mini-frise-bar{ display:flex; height:34px; border-radius:8px; overflow:hidden; }
+  .mini-frise-bar .seg{ display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:0.78rem; color:#1a1030; }
+  .mini-frise-labels{ display:flex; justify-content:space-between; font-size:0.72rem; color:var(--grey); margin-top:4px; font-family:'Baloo 2',sans-serif; }
+
+  .periods-row{ display:flex; flex-wrap:wrap; gap:clamp(8px,1.2vw,14px); margin:clamp(10px,2vh,22px) 0; }
+  .period-chip{
+    flex:1; min-width:140px; border-radius:14px;
+    padding:clamp(12px,2.6vh,32px) clamp(10px,1vw,16px); color:#1a1030;
+  }
+  .period-chip .p-name{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:clamp(0.82rem,2vh,1.25rem); }
+  .period-chip .p-dates{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:clamp(0.68rem,1.6vh,1rem); opacity:0.75; margin-top:3px; }
+
+  /* ---------- onglet « Ce qu'il faut retenir » : carte mentale ---------- */
+  .mindmap{ flex:1; min-height:0; }
+  .mindmap svg{ width:100%; height:100%; display:block; }
+
+  /* ---------- onglet Vocabulaire ---------- */
+  .vocab-list{ display:flex; flex-wrap:wrap; gap:clamp(7px,1.2vh,14px); }
+  .vocab-chip{
+    background:rgba(255,201,60,0.12); border:2px solid var(--yellow-deep); color:var(--yellow);
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:clamp(0.82rem,1.9vh,1.15rem);
+    padding:clamp(8px,1.4vh,14px) clamp(14px,1.5vw,24px); border-radius:999px;
+    cursor:pointer; user-select:none; transition:all .12s ease;
+  }
+  .vocab-chip:hover{ background:rgba(255,201,60,0.22); }
+  .vocab-chip.active{ background:var(--yellow); color:var(--ink); border-color:var(--yellow); transform:scale(1.04); }
+
+  .vocab-def{
+    flex:1; min-height:0; margin-top:clamp(12px,2.2vh,24px);
+    background:var(--indigo-deep); border:2px solid var(--indigo-soft); border-radius:16px;
+    padding:clamp(14px,2.4vh,30px) clamp(16px,2vw,36px);
+    display:flex; align-items:center; gap:clamp(16px,3vw,52px); overflow-y:auto;
+  }
+  .vocab-def .icone{
+    flex:none; font-size:clamp(56px,20vh,200px); line-height:1;
+    filter:drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+  }
+  .vocab-def .bloc{ flex:1; min-width:0; }
+  .vocab-def .mot{
+    font-family:'Baloo 2',sans-serif; font-weight:800; color:var(--yellow);
+    font-size:clamp(1.3rem,4.4vh,3.2rem); margin-bottom:clamp(8px,1.6vh,20px); line-height:1.1;
+  }
+  .vocab-def .sens{ font-size:clamp(1rem,3vh,2.1rem); line-height:1.4; color:#EAE1FA; }
+  .vocab-def .exemple{ margin-top:clamp(10px,2vh,24px); font-style:italic; color:#C6B6E4; font-size:clamp(0.85rem,2.2vh,1.5rem); line-height:1.4; }
+  .vocab-def .invite{ flex:1; color:var(--grey); font-size:clamp(0.9rem,2.4vh,1.6rem); text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-badge">🏛️</div>
+    <div class="brand-text">Histoire en jeu<small>Introduction — CM1</small></div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-screen="quiz">Quiz par équipes</button>
+    <button class="tab-btn" data-screen="retenir">Ce qu'il faut retenir</button>
+    <button class="tab-btn" data-screen="frise">La frise</button>
+    <button class="tab-btn" data-screen="vocabulaire">Vocabulaire</button>
+  </div>
+</div>
+
+<!-- ===================== QUIZ ===================== -->
+<div class="screen active" id="screen-quiz">
+  <div class="quiz-header-row">
+    <div class="scoreboard" id="scoreboard"></div>
+    <button class="btn-trophy" id="btnResults">🏆 Classement</button>
+  </div>
+
+  <div class="quiz-progress" id="quizProgress"></div>
+  <div class="quiz-question" id="quizQuestion"></div>
+  <div class="options-grid" id="optionsGrid"></div>
+  <div class="fact-panel" id="factPanel"></div>
+
+  <div class="quiz-controls">
+    <div class="quiz-nav">
+      <button class="btn btn-ghost" id="btnPrev">◀ Précédent</button>
+      <button class="btn btn-ghost" id="btnNext">Suivant ▶</button>
+      <button class="btn btn-ghost" id="btnRestart">↺ Recommencer</button>
+    </div>
+    <div class="quiz-actions">
+      <button class="btn btn-ghost" id="btnUnderstand">🔎 Je comprends</button>
+      <button class="btn btn-primary" id="btnReveal">Révéler la réponse</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CE QU'IL FAUT RETENIR (carte mentale) ===================== -->
+<div class="screen" id="screen-retenir">
+  <div class="screen-head">
+    <h1>Ce qu'il faut retenir</h1>
+  </div>
+
+  <div class="mindmap">
+    <svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .mm-titre{ font-family:'Baloo 2',sans-serif; font-weight:800; }
+          .mm-texte{ font-family:'Nunito',sans-serif; font-weight:700; fill:#1a1030; }
+          .mm-lien{ fill:none; stroke:#6E5A94; stroke-width:4; stroke-dasharray:8 7; }
+        </style>
+      </defs>
+
+      <!-- liens -->
+      <path class="mm-lien" d="M398 258 C 330 240, 300 180, 250 156"/>
+      <path class="mm-lien" d="M602 258 C 670 240, 700 180, 750 156"/>
+      <path class="mm-lien" d="M398 306 C 330 326, 300 348, 250 366"/>
+      <path class="mm-lien" d="M602 306 C 670 326, 700 348, 750 366"/>
+      <path class="mm-lien" d="M500 350 L 500 504"/>
+
+      <!-- noeud central -->
+      <ellipse cx="500" cy="282" rx="132" ry="68" fill="#FFC93C"/>
+      <text class="mm-titre" x="500" y="275" font-size="44" fill="#241442" text-anchor="middle">L'HISTOIRE</text>
+      <text class="mm-texte" x="500" y="312" font-size="22" text-anchor="middle">la science du passé</text>
+
+      <!-- branche 1 : c'est quoi -->
+      <rect x="30" y="24" width="440" height="132" rx="18" fill="#2D6CDF"/>
+      <text class="mm-titre" x="58" y="68" font-size="30" fill="#fff">📖 C'est quoi ?</text>
+      <text class="mm-texte" x="58" y="106" font-size="23" fill="#fff">Elle étudie les évènements</text>
+      <text class="mm-texte" x="58" y="136" font-size="23" fill="#fff">du passé des hommes.</text>
+
+      <!-- branche 2 : qui -->
+      <rect x="530" y="24" width="440" height="132" rx="18" fill="#2E9E5B"/>
+      <text class="mm-titre" x="558" y="68" font-size="30" fill="#fff">🔍 Qui l'étudie ?</text>
+      <text class="mm-texte" x="558" y="106" font-size="23" fill="#fff">Les historiens (traces, documents)</text>
+      <text class="mm-texte" x="558" y="136" font-size="23" fill="#fff">et les archéologues (fouilles).</text>
+
+      <!-- branche 3 : se repérer -->
+      <rect x="30" y="366" width="440" height="132" rx="18" fill="#1FA98A"/>
+      <text class="mm-titre" x="58" y="410" font-size="30" fill="#fff">📏 Pour se repérer ?</text>
+      <text class="mm-texte" x="58" y="448" font-size="23" fill="#fff">La frise chronologique :</text>
+      <text class="mm-texte" x="58" y="478" font-size="23" fill="#fff">ancien à gauche, récent à droite.</text>
+
+      <!-- branche 4 : dater -->
+      <rect x="530" y="366" width="440" height="132" rx="18" fill="#9B51E0"/>
+      <text class="mm-titre" x="558" y="410" font-size="30" fill="#fff">🕐 Pour dater ?</text>
+      <text class="mm-texte" x="558" y="448" font-size="23" fill="#fff">Avant / après J-C. L'an 1 = naissance</text>
+      <text class="mm-texte" x="558" y="478" font-size="23" fill="#fff">de J-C. Il n'y a pas d'année 0 !</text>
+
+      <!-- branche 5 : les 5 periodes -->
+      <rect x="110" y="504" width="780" height="92" rx="18" fill="#20122F" stroke="#3D2361" stroke-width="3"/>
+      <text class="mm-titre" x="500" y="534" font-size="25" fill="#FFC93C" text-anchor="middle">🗓️ 5 grandes périodes, séparées par un évènement marquant</text>
+      <g>
+        <rect x="132" y="546" width="142" height="38" rx="9" fill="#00B050"/>
+        <text class="mm-texte" x="203" y="571" font-size="16" text-anchor="middle">PRÉHISTOIRE</text>
+        <rect x="282" y="546" width="142" height="38" rx="9" fill="#F280E4"/>
+        <text class="mm-texte" x="353" y="571" font-size="16" text-anchor="middle">ANTIQUITÉ</text>
+        <rect x="432" y="546" width="142" height="38" rx="9" fill="#5BC8D6"/>
+        <text class="mm-texte" x="503" y="571" font-size="16" text-anchor="middle">MOYEN ÂGE</text>
+        <rect x="582" y="546" width="142" height="38" rx="9" fill="#D99594"/>
+        <text class="mm-texte" x="653" y="562" font-size="14" text-anchor="middle">TEMPS</text>
+        <text class="mm-texte" x="653" y="578" font-size="14" text-anchor="middle">MODERNES</text>
+        <rect x="732" y="546" width="142" height="38" rx="9" fill="#C2D69B"/>
+        <text class="mm-texte" x="803" y="562" font-size="14" text-anchor="middle">ÉPOQUE</text>
+        <text class="mm-texte" x="803" y="578" font-size="14" text-anchor="middle">CONTEMPORAINE</text>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<!-- ===================== LA FRISE ===================== -->
+<div class="screen" id="screen-frise">
+  <div class="screen-head">
+    <h1>La frise chronologique</h1>
+    <p>Une « ligne du temps » pour situer les évènements les uns par rapport aux autres.</p>
+  </div>
+
+  <div class="resume-grid one-col">
+    <div class="resume-card">
+      <h3>📏 La règle de la frise</h3>
+      <p><strong>Plus un évènement est ancien, plus il est placé à gauche</strong> sur la frise ; plus il est récent, plus il est placé à droite.</p>
+      <div class="periods-row">
+        <div class="period-chip" style="background:#00B050;"><div class="p-name">PRÉHISTOIRE</div><div class="p-dates">jusqu'à -3000</div></div>
+        <div class="period-chip" style="background:#F280E4;"><div class="p-name">ANTIQUITÉ</div><div class="p-dates">-3000 → 476</div></div>
+        <div class="period-chip" style="background:#5BC8D6;"><div class="p-name">MOYEN ÂGE</div><div class="p-dates">476 → 1492</div></div>
+        <div class="period-chip" style="background:#D99594;"><div class="p-name">TEMPS MODERNES</div><div class="p-dates">1492 → 1789</div></div>
+        <div class="period-chip" style="background:#C2D69B;"><div class="p-name">ÉPOQUE CONTEMPORAINE</div><div class="p-dates">1789 → aujourd'hui</div></div>
+      </div>
+      <p style="margin-top:14px;">Chaque période est séparée de la suivante par un <strong>évènement marquant</strong> : l'invention de l'écriture (-3000), la chute de l'Empire romain (476), l'arrivée de Christophe Colomb en Amérique (1492), la prise de la Bastille (1789).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== VOCABULAIRE ===================== -->
+<div class="screen" id="screen-vocabulaire">
+  <div class="screen-head">
+    <h1>Vocabulaire à connaître</h1>
+    <p>Touche un mot pour lire sa définition.</p>
+  </div>
+
+  <div class="vocab-list" id="vocabList"></div>
+  <div class="vocab-def" id="vocabDef">
+    <p class="invite">👆 Touche un mot ci-dessus pour afficher sa définition.</p>
+  </div>
+</div>
+
+</div><!-- /.app -->
+
+<!-- ===================== MODALE INFOGRAPHIE ===================== -->
+<div class="modal-overlay" id="infoModal">
+  <div class="modal-box">
+    <button class="modal-close" id="infoModalClose">✕</button>
+    <h3 class="modal-title" id="infoModalTitle"></h3>
+    <div class="modal-svg-wrap" id="infoModalSvg"></div>
+    <p class="modal-caption" id="infoModalCaption"></p>
+  </div>
+</div>
+
+<!-- ===================== MODALE RÉSULTATS ===================== -->
+<div class="modal-overlay" id="resultsModal">
+  <div class="modal-box">
+    <button class="modal-close" id="resultsModalClose">✕</button>
+    <div class="trophy-banner" id="trophyBanner"></div>
+    <div class="results-podium" id="resultsPodium"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   NAVIGATION ENTRE ÉCRANS
+   ============================================================ */
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("screen-"+btn.dataset.screen).classList.add("active");
+  });
+});
+
+/* ============================================================
+   ONGLET VOCABULAIRE — on touche un mot, sa définition s'affiche
+   ============================================================ */
+const VOCABULAIRE = [
+  { mot:"l'Histoire", icone:"📖",
+    sens:"La science qui étudie les évènements du passé des hommes.",
+    ex:"En CM1, c'est une matière : on y apprend ce qui s'est vraiment passé." },
+  { mot:"un historien", icone:"🔍",
+    sens:"La personne qui étudie le passé et le reconstitue à partir de traces et de documents.",
+    ex:"Il lit de vieux textes, observe des monuments, des objets, des images." },
+  { mot:"un archéologue", icone:"⛏️",
+    sens:"La personne qui fouille le sol pour retrouver des objets très anciens.",
+    ex:"Outils en pierre, poteries, ossements : autant d'indices sur la vie d'autrefois." },
+  { mot:"le passé", icone:"⏳",
+    sens:"Tout ce qui s'est déjà passé, avant aujourd'hui.",
+    ex:"Son contraire, c'est le futur : ce qui n'est pas encore arrivé." },
+  { mot:"un évènement", icone:"📅",
+    sens:"Quelque chose d'important qui s'est passé, à une date précise.",
+    ex:"La prise de la Bastille, le 14 juillet 1789, est un évènement." },
+  { mot:"une frise chronologique", icone:"📏",
+    sens:"Une bande, souvent en forme de flèche, où l'on place les évènements dans l'ordre du temps : le plus ancien à gauche, le plus récent à droite.",
+    ex:"On l'appelle aussi « la ligne du temps »." },
+  { mot:"avant J-C / après J-C", icone:"🕐",
+    sens:"Avant ou après la naissance de Jésus-Christ, qui marque l'an 1 de notre calendrier.",
+    ex:"Une date écrite avec un moins, comme -3000, se situe avant J-C." },
+  { mot:"une période", icone:"🧩",
+    sens:"Une grande tranche de temps de l'Histoire. Les historiens en comptent cinq.",
+    ex:"Préhistoire, Antiquité, Moyen Âge, Temps modernes, Époque contemporaine." },
+];
+
+const vocabList = document.getElementById("vocabList");
+const vocabDef = document.getElementById("vocabDef");
+
+VOCABULAIRE.forEach(entree=>{
+  const chip = document.createElement("span");
+  chip.className = "vocab-chip";
+  chip.textContent = entree.mot;
+  chip.addEventListener("click", ()=>{
+    vocabList.querySelectorAll(".vocab-chip").forEach(c=>c.classList.remove("active"));
+    chip.classList.add("active");
+    vocabDef.innerHTML = `
+      <div class="icone">${entree.icone}</div>
+      <div class="bloc">
+        <div class="mot">${entree.mot}</div>
+        <div class="sens">${entree.sens}</div>
+        <div class="exemple">${entree.ex}</div>
+      </div>`;
+  });
+  vocabList.appendChild(chip);
+});
+
+/* ============================================================
+   DONNÉES — QUIZ DE CULTURE HISTORIQUE
+   ------------------------------------------------------------
+   type   : "lecon"   = ce qui a été vu en séance 1 (l'Histoire, la frise,
+                        les 5 périodes)
+            "culture" = culture historique générale, dans l'ordre chronologique
+   Alternance : 1 question de leçon, puis 2 de culture, etc.
+   funny  : index de la réponse humoristique dans le tableau ci-dessous
+            (sa position à l'écran est ensuite déplacée automatiquement)
+   correct: index de la bonne réponse dans le tableau ci-dessous
+            (sa position à l'écran est elle aussi redistribuée : voir
+             CORRECT_PATTERN plus bas — aucune position n'est privilégiée)
+   ============================================================ */
+const QUIZ = [
+  // ---------- 1 · leçon ----------
+  { type:"lecon",
+    q:"Que veut dire le mot « Histoire », au sens de la matière étudiée en classe ?",
+    options:["La connaissance du passé des hommes, l'étude de ce qui s'est vraiment passé","Une histoire drôle qu'on raconte le soir","La liste des dates à apprendre par cœur","Un conte inventé"],
+    correct:0, funny:1,
+    fact:"Larousse : « Connaissance du passé de l'humanité et des sociétés humaines ; discipline qui étudie ce passé. »",
+    info:() => emojiCard("📖", "L'étude du passé des hommes") },
+
+  { type:"culture",
+    q:"Quelle grande maîtrise a transformé la vie des hommes de la Préhistoire ?",
+    options:["La maîtrise du feu","La maîtrise de l'électricité","La maîtrise du micro-ondes","La maîtrise de l'écriture"],
+    correct:0, funny:2,
+    fact:"Le feu permettait de se réchauffer, de cuire les aliments et d'éloigner les animaux. L'écriture, elle, arrive bien plus tard : elle marque la FIN de la Préhistoire.",
+    info:() => emojiCard("🔥", "Se chauffer, cuire, se protéger") },
+
+  { type:"culture",
+    q:"Dans quelles grottes françaises peut-on voir de célèbres peintures préhistoriques ?",
+    options:["Les grottes de Lascaux","Les grottes de Robin des Bois","Les grottes du Père Noël","Les grottes de Versailles"],
+    correct:0, funny:2,
+    fact:"Les grottes de Lascaux, en Dordogne, contiennent des peintures vieilles d'environ 17 000 ans, représentant surtout des animaux.",
+    info:() => emojiCard("🎨", "Peintures vieilles de 17 000 ans") },
+
+  // ---------- 2 · leçon ----------
+  { type:"lecon",
+    q:"Qui étudie et reconstitue le passé à partir de traces et de documents ?",
+    options:["Un historien","Un boulanger","Un astronaute","Un magicien"],
+    correct:0, funny:3,
+    fact:"Les historiens travaillent à partir de traces (objets, monuments) et de documents (textes, images) laissés par les hommes du passé.",
+    info:() => emojiCard("🔍", "L'historien reconstitue le passé") },
+
+  { type:"culture",
+    q:"Dans quel pays de l'Antiquité les pharaons se faisaient-ils construire des pyramides géantes ?",
+    options:["En Égypte","En Chine","Au Groenland","En Norvège"],
+    correct:0, funny:2,
+    fact:"Les pyramides d'Égypte, comme celle de Khéops, servaient de tombeaux aux pharaons, il y a plus de 4 000 ans.",
+    info:() => emojiCard("🔺", "Les pyramides d'Égypte") },
+
+  { type:"culture",
+    q:"Comment appelle-t-on l'écriture des Égyptiens de l'Antiquité, faite de petits dessins ?",
+    options:["Les hiéroglyphes","Les emojis","L'écriture cursive","Le morse"],
+    correct:0, funny:1,
+    fact:"Les hiéroglyphes ont été déchiffrés par Champollion grâce à la pierre de Rosette.",
+    info:() => emojiCard("𓂀", "Les hiéroglyphes") },
+
+  // ---------- 3 · leçon ----------
+  { type:"lecon",
+    q:"Qui fouille le sol pour retrouver des objets anciens et mieux comprendre la vie des hommes du passé ?",
+    options:["Un archéologue","Un pompier","Un jardinier","Un géographe"],
+    correct:0, funny:2,
+    fact:"Les archéologues fouillent le sol pour retrouver des outils, des poteries, des ossements, qui aident à comprendre le passé.",
+    info:() => emojiCard("⛏️", "L'archéologue fouille le sol") },
+
+  { type:"culture",
+    q:"Dans quelle cité de la Grèce antique la démocratie est-elle née ?",
+    options:["Athènes","Rome","Paris","Pékin"],
+    correct:0, funny:2,
+    fact:"À Athènes, il y a environ 2 500 ans, les citoyens se réunissaient pour voter les lois. « Démocratie » vient du grec : le pouvoir (kratos) du peuple (dêmos).",
+    info:() => emojiCard("🏛️", "Athènes, il y a 2 500 ans") },
+
+  { type:"culture",
+    q:"Quelle immense muraille, construite pour se protéger des invasions, se trouve en Chine ?",
+    options:["La Grande Muraille de Chine","Le Mur de Berlin","La Tour de Pise","Le mur de la cour de récréation"],
+    correct:0, funny:3,
+    fact:"La Grande Muraille s'étend sur plusieurs milliers de kilomètres ; elle a été construite et agrandie pendant près de 2 000 ans.",
+    info:() => emojiCard("🧱", "Des milliers de kilomètres") },
+
+  // ---------- 4 · leçon ----------
+  { type:"lecon",
+    q:"Que signifie « J-C », quand on écrit une date « avant J-C » ou « après J-C » ?",
+    options:["Jésus-Christ","Jules César","Un roi nommé Jean-Claude","Journée des Congés"],
+    correct:0, funny:2,
+    fact:"L'an 1 de notre calendrier correspond, par convention, à la naissance de Jésus-Christ. Attention : il n'y a pas d'année 0 — on passe de l'an 1 avant J-C à l'an 1 après J-C.",
+    info:() => `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+      <line x1="30" y1="90" x2="290" y2="90" stroke="${PALETTE.grey}" stroke-width="4"/>
+      <polygon points="290,84 306,90 290,96" fill="${PALETTE.grey}"/>
+      <line x1="160" y1="70" x2="160" y2="110" stroke="${PALETTE.yellow}" stroke-width="4"/>
+      <text x="160" y="58" font-size="14" font-weight="700" fill="${PALETTE.yellow}" text-anchor="middle" font-family="Baloo 2">an 1 = naissance de J-C</text>
+      <text x="80" y="120" font-size="13" fill="${PALETTE.blue}" text-anchor="middle" font-family="Baloo 2">avant J-C</text>
+      <text x="240" y="120" font-size="13" fill="${PALETTE.teal}" text-anchor="middle" font-family="Baloo 2">après J-C</text>
+    </svg>` },
+
+  { type:"culture",
+    q:"Comment s'appelaient les habitants de la Gaule avant la conquête romaine ?",
+    options:["Les Gaulois","Les Romains","Les Vikings","Les Trois Mousquetaires"],
+    correct:0, funny:3,
+    fact:"Les Gaulois vivaient en tribus sur le territoire de la France actuelle, avant d'être conquis par les Romains.",
+    info:() => emojiCard("🛡️", "Les tribus gauloises") },
+
+  { type:"culture",
+    q:"Quel chef gaulois s'est opposé à Jules César à la bataille d'Alésia, en 52 avant J-C ?",
+    options:["Vercingétorix","Astérix","Obélix","Clovis"],
+    correct:0, funny:1,
+    fact:"Vercingétorix a rassemblé plusieurs tribus gauloises contre Jules César, mais a été vaincu à Alésia en 52 avant J-C.",
+    info:() => emojiCard("⚔️", "Alésia, 52 avant J-C") },
+
+  // ---------- 5 · leçon ----------
+  { type:"lecon",
+    q:"Sur la frise chronologique, où se trouve la partie « avant J-C » ?",
+    options:["À gauche du repère de l'an 1","À droite du repère de l'an 1","En dessous de la frise","Dans la marge du cahier"],
+    correct:0, funny:3,
+    fact:"Avant J-C = avant l'an 1 : c'est donc toute la partie située à gauche du repère de l'an 1 sur la frise.",
+    info:() => `<svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="55" width="120" height="24" fill="${PALETTE.blue}"/>
+      <rect x="140" y="55" width="160" height="24" fill="${PALETTE.orange}"/>
+      <line x1="140" y1="45" x2="140" y2="89" stroke="#fff" stroke-width="2"/>
+      <text x="80" y="100" font-size="12" font-weight="700" fill="${PALETTE.blue}" text-anchor="middle" font-family="Baloo 2">AVANT J-C</text>
+      <text x="220" y="100" font-size="12" font-weight="700" fill="${PALETTE.orange}" text-anchor="middle" font-family="Baloo 2">APRÈS J-C</text>
+      <text x="140" y="38" font-size="11" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">an 1</text>
+    </svg>` },
+
+  { type:"culture",
+    q:"En quelle année l'Empire romain d'Occident s'effondre-t-il, marquant la fin de l'Antiquité ?",
+    options:["476","1492","1789","L'an 2000"],
+    correct:0, funny:3,
+    fact:"La chute de l'Empire romain d'Occident, en 476, marque traditionnellement la fin de l'Antiquité et le début du Moyen Âge.",
+    info:() => emojiCard("🏛️", "Fin de l'Antiquité — an 476") },
+
+  { type:"culture",
+    q:"Quel roi franc, sacré empereur en l'an 800, a donné son nom à de nombreuses écoles ?",
+    options:["Charlemagne","Clovis","Louis XVI","Charles Perrault"],
+    correct:0, funny:3,
+    fact:"Charlemagne a régné sur un immense empire et a encouragé l'instruction — d'où son image de « fondateur de l'école ».",
+    info:() => emojiCard("📚", "Charlemagne, l'an 800") },
+
+  // ---------- 6 · leçon ----------
+  { type:"lecon",
+    q:"Comment appelle-t-on la frise qui représente les évènements du passé dans l'ordre du temps ?",
+    options:["Une frise chronologique","Une frise géographique","Une frise décorative","Une frise musicale"],
+    correct:0, funny:3,
+    fact:"La frise chronologique — ou « ligne du temps » — permet de situer les évènements les uns par rapport aux autres, du plus ancien au plus récent.",
+    info:() => `<svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg">
+      <line x1="20" y1="65" x2="300" y2="65" stroke="${PALETTE.teal}" stroke-width="6" stroke-linecap="round"/>
+      <polygon points="300,58 316,65 300,72" fill="${PALETTE.teal}"/>
+      <text x="60" y="100" font-size="12" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">ancien</text>
+      <text x="260" y="100" font-size="12" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">récent</text>
+    </svg>` },
+
+  { type:"culture",
+    q:"Quel peuple du Nord attaquait les côtes de l'Europe en drakkar, au début du Moyen Âge ?",
+    options:["Les Vikings","Les Égyptiens","Les Pirates des Caraïbes","Les Grecs"],
+    correct:0, funny:2,
+    fact:"Venus de Scandinavie, les Vikings étaient d'excellents navigateurs : ils ont atteint l'Islande, le Groenland et même l'Amérique du Nord.",
+    info:() => emojiCard("⛵", "Les drakkars vikings") },
+
+  { type:"culture",
+    q:"Comment appelle-t-on un château fortifié où vivait un seigneur, au Moyen Âge ?",
+    options:["Un château fort","Un immeuble","Une cabane","Un centre commercial"],
+    correct:0, funny:3,
+    fact:"Les châteaux forts protégeaient le seigneur et les villageois grâce à des remparts, des douves et des tours de guet.",
+    info:() => emojiCard("🏰", "Un château fort médiéval") },
+
+  // ---------- 7 · leçon ----------
+  { type:"lecon",
+    q:"Pour compléter le cours : « Plus un évènement est ancien, plus il est placé... »",
+    options:["...à gauche sur la frise","...à droite sur la frise","...en haut de la frise","...dans un tiroir"],
+    correct:0, funny:3,
+    fact:"C'est la règle de la frise chronologique : plus on remonte dans le passé, plus on va vers la gauche.",
+    info:() => `<svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg">
+      <line x1="20" y1="65" x2="300" y2="65" stroke="${PALETTE.grey}" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="70" cy="65" r="10" fill="${PALETTE.yellow}"/>
+      <text x="70" y="95" font-size="12" fill="${PALETTE.yellow}" text-anchor="middle" font-family="Baloo 2">plus ancien</text>
+      <text x="70" y="40" font-size="22" text-anchor="middle">⬅️</text>
+      <text x="250" y="100" font-size="12" fill="${PALETTE.grey}" text-anchor="middle" font-family="Baloo 2">plus récent</text>
+    </svg>` },
+
+  { type:"culture",
+    q:"Qui, au Moyen Âge, cultivait les champs du seigneur et lui devait des corvées ?",
+    options:["Les paysans","Les chevaliers","Les rois","Les touristes"],
+    correct:0, funny:3,
+    fact:"Les paysans donnaient au seigneur une partie de leurs récoltes et des journées de travail gratuit : les corvées.",
+    info:() => emojiCard("🌾", "Les paysans cultivent la terre") },
+
+  { type:"culture",
+    q:"Qu'est-ce qu'un chevalier, au Moyen Âge ?",
+    options:["Un guerrier à cheval au service d'un seigneur","Un marchand ambulant","Un moine copiste","Un joueur d'échecs"],
+    correct:0, funny:3,
+    fact:"Les chevaliers combattaient à cheval, en armure, et devaient respecter un code d'honneur : la chevalerie.",
+    info:() => emojiCard("🐴", "Un chevalier en armure") },
+
+  // ---------- 8 · leçon ----------
+  { type:"lecon",
+    q:"Comment appelle-t-on la période la plus ancienne, avant l'invention de l'écriture ?",
+    options:["La Préhistoire","L'Antiquité","Le Moyen Âge","Les vacances des historiens"],
+    correct:0, funny:3,
+    fact:"La Préhistoire commence avec les premiers hommes et se termine avec l'invention de l'écriture, il y a plus de 5 000 ans.",
+    info:() => emojiCard("🦣", "Il y a très, très longtemps...") },
+
+  { type:"culture",
+    q:"Quelle jeune fille a aidé le futur roi Charles VII pendant la guerre de Cent Ans ?",
+    options:["Jeanne d'Arc","Marianne","Blanche-Neige","Cléopâtre"],
+    correct:0, funny:2,
+    fact:"Jeanne d'Arc a mené l'armée française à la victoire à Orléans en 1429, avant d'être capturée puis brûlée à Rouen en 1431.",
+    info:() => emojiCard("⚜️", "Jeanne d'Arc, 1429") },
+
+  { type:"culture",
+    q:"Quelle invention de Gutenberg, vers 1450, a permis de fabriquer beaucoup plus de livres ?",
+    options:["L'imprimerie","Le stylo à bille","La photocopieuse","Le téléphone"],
+    correct:0, funny:2,
+    fact:"Avant l'imprimerie, les livres étaient recopiés à la main par des moines copistes : il fallait des mois pour un seul exemplaire !",
+    info:() => emojiCard("🖨️", "L'imprimerie, vers 1450") },
+
+  // ---------- 9 · leçon ----------
+  { type:"lecon",
+    q:"Quelles sont, dans l'ordre, les 5 grandes périodes de l'Histoire ?",
+    options:["Préhistoire, Antiquité, Moyen Âge, Temps modernes, Époque contemporaine","Antiquité, Préhistoire, Moyen Âge, Époque contemporaine, Temps modernes","Moyen Âge, Antiquité, Préhistoire, Temps modernes, Époque contemporaine","Lundi, mardi, mercredi, jeudi, vendredi"],
+    correct:0, funny:3,
+    fact:"Préhistoire → Antiquité → Moyen Âge → Temps modernes → Époque contemporaine : c'est la frise que nous complèterons toute l'année.",
+    info:() => `<svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">
+      <rect x="15" y="60" width="40" height="30" fill="#00B050"/><text x="35" y="80" font-size="12" text-anchor="middle" fill="#1a1030" font-family="Baloo 2" font-weight="700">1</text>
+      <rect x="55" y="60" width="55" height="30" fill="#F280E4"/><text x="82" y="80" font-size="12" text-anchor="middle" fill="#1a1030" font-family="Baloo 2" font-weight="700">2</text>
+      <rect x="110" y="60" width="55" height="30" fill="#5BC8D6"/><text x="137" y="80" font-size="12" text-anchor="middle" fill="#1a1030" font-family="Baloo 2" font-weight="700">3</text>
+      <rect x="165" y="60" width="55" height="30" fill="#D99594"/><text x="192" y="80" font-size="12" text-anchor="middle" fill="#1a1030" font-family="Baloo 2" font-weight="700">4</text>
+      <rect x="220" y="60" width="85" height="30" fill="#C2D69B"/><text x="262" y="80" font-size="12" text-anchor="middle" fill="#1a1030" font-family="Baloo 2" font-weight="700">5</text>
+      <text x="160" y="115" font-size="12" font-weight="700" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">Dans l'ordre, de 1 à 5</text>
+    </svg>` },
+
+  { type:"culture",
+    q:"En quelle année Christophe Colomb atteint-il l'Amérique ?",
+    options:["1492","1099","1789","2004"],
+    correct:0, funny:3,
+    fact:"En 1492, Christophe Colomb atteint les Amériques : cette date marque, dans le découpage français, le passage du Moyen Âge aux Temps modernes.",
+    info:() => emojiCard("🧭", "1492 : vers l'Amérique") },
+
+  { type:"culture",
+    q:"Quel roi de France, surnommé le « Roi Soleil », a fait construire le château de Versailles ?",
+    options:["Louis XIV","François Ier","Henri IV","Le Roi Lion"],
+    correct:0, funny:3,
+    fact:"Louis XIV a régné 72 ans — un record — et a fait de Versailles le symbole de son pouvoir.",
+    info:() => emojiCard("👑", "Le château de Versailles") },
+
+  // ---------- 10 · leçon ----------
+  { type:"lecon",
+    q:"Quelle grande période vient juste après la Préhistoire ?",
+    options:["L'Antiquité","Le Moyen Âge","L'Époque contemporaine","Les grandes vacances"],
+    correct:0, funny:3,
+    fact:"La Préhistoire se termine avec l'invention de l'écriture, vers -3000 : c'est le début de l'Antiquité.",
+    info:() => emojiCard("🏛️", "Après la Préhistoire : l'Antiquité") },
+
+  { type:"culture",
+    q:"Quel évènement du 14 juillet 1789 est devenu le symbole du début de la Révolution française ?",
+    options:["La prise de la Bastille","La fête de la musique","Le feu d'artifice de la tour Eiffel","Le sacre de Napoléon"],
+    correct:0, funny:2,
+    fact:"La Bastille était une prison royale à Paris. Le 14 juillet est aujourd'hui la fête nationale française, et 1789 ouvre l'Époque contemporaine.",
+    info:() => emojiCard("🗝️", "14 juillet 1789") },
+
+  { type:"culture",
+    q:"Quel texte, proclamé en 1789, affirme que les hommes naissent libres et égaux en droits ?",
+    options:["La Déclaration des droits de l'Homme et du citoyen","Le règlement intérieur de l'école","Le code de la route","La Constitution de 1958"],
+    correct:0, funny:1,
+    fact:"Ce texte de 1789 est encore un fondement de nos lois aujourd'hui.",
+    info:() => emojiCard("📜", "Déclaration de 1789") },
+
+  // ---------- 11 · leçon ----------
+  { type:"lecon",
+    q:"Un évènement daté « -3000 » a-t-il eu lieu avant ou après Jésus-Christ ?",
+    options:["Avant J-C","Après J-C","Ni l'un ni l'autre","Ça dépend du pays"],
+    correct:0, funny:3,
+    fact:"Un nombre négatif sur la frise (« -3000 », « -52 »...) signifie toujours « avant J-C ».",
+    info:() => emojiCard("➖", "Un nombre négatif = avant J-C") },
+
+  { type:"culture",
+    q:"Quel général est devenu empereur des Français en 1804 ?",
+    options:["Napoléon Bonaparte","Charlemagne","Vercingétorix","Louis XIV"],
+    correct:0, funny:2,
+    fact:"Napoléon Bonaparte s'est fait sacrer empereur en 1804, après avoir pris le pouvoir à la fin de la Révolution.",
+    info:() => emojiCard("🎩", "Empereur en 1804") },
+
+  { type:"culture",
+    q:"Quelle est la devise de la République française ?",
+    options:["Liberté, égalité, fraternité","Un pour tous, tous pour un","Travail, famille, patrie","Plus vite, plus haut, plus fort"],
+    correct:0, funny:1,
+    fact:"Héritée de la Révolution française, cette devise figure sur les frontons des mairies et des écoles.",
+    info:() => emojiCard("⚖️", "Liberté, égalité, fraternité") },
+
+  // ---------- 12 · leçon ----------
+  { type:"lecon",
+    q:"Sur la frise des historiens, qu'est-ce qui sépare deux grandes périodes ?",
+    options:["Un évènement marquant, à une date précise","Un changement de couleur choisi au hasard","Le début d'un siècle","Le début d'une année scolaire"],
+    correct:0, funny:3,
+    fact:"Chaque période est délimitée par un évènement marquant : l'invention de l'écriture (-3000), la chute de l'Empire romain (476), l'arrivée de Christophe Colomb en Amérique (1492), la prise de la Bastille (1789).",
+    info:() => `<svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="55" width="120" height="28" fill="#F280E4"/>
+      <rect x="146" y="55" width="150" height="28" fill="#5BC8D6"/>
+      <line x1="143" y1="40" x2="143" y2="98" stroke="#fff" stroke-width="3"/>
+      <text x="143" y="32" font-size="15" font-weight="800" fill="${PALETTE.yellow}" text-anchor="middle" font-family="Baloo 2">476</text>
+      <text x="143" y="120" font-size="12" font-weight="700" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">chute de l'Empire romain</text>
+    </svg>` },
+
+  { type:"culture",
+    q:"Comment appelle-t-on le grand conflit mondial qui a eu lieu de 1914 à 1918 ?",
+    options:["La Première Guerre mondiale","La Seconde Guerre mondiale","La guerre de Cent Ans","La guerre des boutons"],
+    correct:0, funny:3,
+    fact:"La Première Guerre mondiale (1914-1918) a touché de nombreux pays et fait des millions de victimes. Elle appartient à l'Époque contemporaine.",
+    info:() => emojiCard("🎖️", "1914 – 1918") },
+
+  { type:"culture",
+    q:"De quelle année à quelle année s'est déroulée la Seconde Guerre mondiale ?",
+    options:["De 1939 à 1945","De 1914 à 1918","De 1789 à 1799","De 1900 à 1910"],
+    correct:0, funny:-1,
+    fact:"La Seconde Guerre mondiale a duré de 1939 à 1945. En France, le 8 mai est le jour anniversaire de la fin des combats en Europe.",
+    info:() => emojiCard("🕊️", "1939 – 1945") },
+];
+
+/* ------------------------------------------------------------
+   Redistribution des positions de réponse
+   ------------------------------------------------------------
+   Sans cela, la bonne réponse tombait 23 fois sur 4 en A et la réponse
+   humoristique toujours en D : les élèves finissaient par répondre « A »
+   sans réfléchir. Les deux séquences ci-dessous répartissent les positions
+   de façon régulière (9 bonnes réponses en A, 9 en B, 9 en C, 9 en D sur
+   36 questions) et ne se croisent jamais.
+   ------------------------------------------------------------ */
+const CORRECT_PATTERN = [1, 3, 0, 2, 3, 1, 2, 0];
+const FUNNY_PATTERN   = [3, 0, 2, 1, 0, 2, 1, 3];
+
+function arrangeOptions(q, i){
+  const cPos = CORRECT_PATTERN[i % CORRECT_PATTERN.length];
+  const fPos = FUNNY_PATTERN[i % FUNNY_PATTERN.length];
+  const slots = [null, null, null, null];
+  slots[cPos] = q.options[q.correct];
+  const hasFunny = typeof q.funny === "number" && q.funny >= 0;
+  if(hasFunny && fPos !== cPos) slots[fPos] = q.options[q.funny];
+  const reste = q.options.filter((o, j) => j !== q.correct && !(hasFunny && j === q.funny && slots[fPos] === q.options[q.funny]));
+  let k = 0;
+  for(let s = 0; s < 4; s++) if(slots[s] === null) slots[s] = reste[k++];
+  q.options = slots;
+  q.correct = cPos;
+}
+QUIZ.forEach(arrangeOptions);
+
+const OPTION_COLORS = ["var(--blue)","var(--orange)","var(--purple)","var(--teal)"];
+const OPTION_LETTERS = ["A","B","C","D"];
+
+/* ============================================================
+   INFOGRAPHIES — une illustration SVG par question du quiz
+   ============================================================ */
+const PALETTE = { blue:"#2D6CDF", orange:"#F2994A", purple:"#9B51E0", teal:"#1FA98A", yellow:"#FFC93C", green:"#2E9E5B", ink:"#FDFBFF", grey:"#9086AC" };
+
+function emojiCard(emoji, caption, emojiSize=64){
+  return `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+      <text x="160" y="90" font-size="${emojiSize}" text-anchor="middle">${emoji}</text>
+      <text x="160" y="138" font-size="14" font-weight="700" fill="${PALETTE.ink}" text-anchor="middle" font-family="Baloo 2">${caption}</text>
+    </svg>`;
+}
+
+
+/* ============================================================
+   QUIZ PAR ÉQUIPES
+   ============================================================ */
+const TEAM_NAMES = { A:"Équipe A", B:"Équipe B", C:"Équipe C", D:"Équipe D", E:"Équipe E" };
+const scores = { A:0, B:0, C:0, D:0, E:0 };
+const scoreboard = document.getElementById("scoreboard");
+
+function renderScoreboard(){
+  scoreboard.innerHTML = "";
+  Object.keys(scores).forEach(team=>{
+    const card = document.createElement("div");
+    card.className = "team-card";
+    card.dataset.team = team;
+    card.innerHTML = `
+      <button class="team-reset" data-team="${team}" title="Réinitialiser">↺</button>
+      <span class="team-name">${TEAM_NAMES[team]}</span>
+      <span class="team-score">${scores[team]}</span>
+      <span class="team-hint">touche pour +1 point</span>
+    `;
+    scoreboard.appendChild(card);
+  });
+  scoreboard.querySelectorAll(".team-card").forEach(card=>{
+    card.addEventListener("click", ()=>{
+      const team = card.dataset.team;
+      scores[team] += 1;
+      renderScoreboard();
+      const fresh = scoreboard.querySelector(`.team-card[data-team="${team}"]`);
+      if(fresh){ fresh.classList.add("pulse"); setTimeout(()=>fresh.classList.remove("pulse"), 350); }
+    });
+  });
+  scoreboard.querySelectorAll(".team-reset").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      scores[btn.dataset.team] = 0;
+      renderScoreboard();
+    });
+  });
+}
+renderScoreboard();
+
+let quizIndex = 0;
+const quizProgress = document.getElementById("quizProgress");
+const quizQuestion = document.getElementById("quizQuestion");
+const optionsGrid = document.getElementById("optionsGrid");
+const factPanel = document.getElementById("factPanel");
+const btnPrev = document.getElementById("btnPrev");
+const btnNext = document.getElementById("btnNext");
+const btnReveal = document.getElementById("btnReveal");
+const btnUnderstand = document.getElementById("btnUnderstand");
+
+function renderQuiz(){
+  const item = QUIZ[quizIndex];
+  quizProgress.textContent = `Question ${quizIndex+1} / ${QUIZ.length}`;
+  quizQuestion.textContent = item.q;
+  optionsGrid.innerHTML = "";
+  item.options.forEach((opt,i)=>{
+    const b = document.createElement("button");
+    b.className = "option-btn";
+    b.style.background = OPTION_COLORS[i];
+    b.innerHTML = `<span class="option-letter">${OPTION_LETTERS[i]}</span><span>${opt}</span>`;
+    b.addEventListener("click", ()=>{
+      optionsGrid.querySelectorAll(".option-btn").forEach(o=>o.classList.remove("selected"));
+      b.classList.add("selected");
+    });
+    optionsGrid.appendChild(b);
+  });
+  factPanel.classList.remove("show");
+  factPanel.textContent = "";
+  btnReveal.disabled = false;
+  btnPrev.disabled = quizIndex === 0;
+  btnNext.disabled = quizIndex === QUIZ.length-1;
+}
+
+btnReveal.addEventListener("click", ()=>{
+  const item = QUIZ[quizIndex];
+  const buttons = Array.from(optionsGrid.children);
+  buttons.forEach((b,i)=>{
+    if(i === item.correct) b.classList.add("correct");
+    else b.classList.add("muted");
+  });
+  factPanel.textContent = "💡 Le sais-tu ? " + item.fact;
+  factPanel.classList.add("show");
+  btnReveal.disabled = true;
+});
+
+btnPrev.addEventListener("click", ()=>{ if(quizIndex>0){ quizIndex--; renderQuiz(); } });
+btnNext.addEventListener("click", ()=>{ if(quizIndex<QUIZ.length-1){ quizIndex++; renderQuiz(); } });
+document.getElementById("btnRestart").addEventListener("click", ()=>{ quizIndex = 0; renderQuiz(); });
+
+renderQuiz();
+
+/* ---------- modale infographie ("Je comprends") ---------- */
+const infoModal = document.getElementById("infoModal");
+const infoModalTitle = document.getElementById("infoModalTitle");
+const infoModalSvg = document.getElementById("infoModalSvg");
+const infoModalCaption = document.getElementById("infoModalCaption");
+
+btnUnderstand.addEventListener("click", ()=>{
+  const item = QUIZ[quizIndex];
+  infoModalTitle.textContent = item.q;
+  infoModalSvg.innerHTML = item.info ? item.info() : "";
+  infoModalCaption.textContent = item.fact;
+  infoModal.classList.add("show");
+});
+document.getElementById("infoModalClose").addEventListener("click", ()=> infoModal.classList.remove("show"));
+infoModal.addEventListener("click", (e)=>{ if(e.target === infoModal) infoModal.classList.remove("show"); });
+
+/* ---------- modale résultats / classement ---------- */
+const resultsModal = document.getElementById("resultsModal");
+const trophyBanner = document.getElementById("trophyBanner");
+const resultsPodium = document.getElementById("resultsPodium");
+
+document.getElementById("btnResults").addEventListener("click", ()=>{
+  const ranked = Object.keys(scores)
+    .map(team=>({ team, name:TEAM_NAMES[team], score:scores[team] }))
+    .sort((a,b)=> b.score - a.score);
+  const topScore = ranked[0].score;
+  const winners = ranked.filter(r=>r.score === topScore);
+
+  if(topScore === 0){
+    trophyBanner.innerHTML = `
+      <span class="emoji">🏛️</span>
+      <p class="title">Le quiz commence à peine !</p>
+      <p class="subtitle">Cliquez sur une équipe pour lui donner son premier point.</p>`;
+  } else if(winners.length === 1){
+    trophyBanner.innerHTML = `
+      <span class="emoji">🏆</span>
+      <p class="title">Trophée des mini-historiens</p>
+      <p class="subtitle">${winners[0].name} remporte la partie avec ${winners[0].score} point${winners[0].score>1?"s":""} !</p>`;
+  } else {
+    const names = winners.map(w=>w.name).join(" et ");
+    trophyBanner.innerHTML = `
+      <span class="emoji">🏆</span>
+      <p class="title">Trophée des mini-historiens</p>
+      <p class="subtitle">Égalité parfaite entre ${names} avec ${topScore} points !</p>`;
+  }
+
+  resultsPodium.innerHTML = ranked.map((r,i)=>`
+    <div class="results-row ${r.score===topScore && topScore>0 ? "winner":""}">
+      <span class="results-rank">${i+1}</span>
+      <span class="results-name">${r.name}${r.score===topScore && topScore>0 ? " 🏆":""}</span>
+      <span class="results-score">${r.score} pt${r.score>1?"s":""}</span>
+    </div>`).join("");
+
+  resultsModal.classList.add("show");
+});
+document.getElementById("resultsModalClose").addEventListener("click", ()=> resultsModal.classList.remove("show"));
+resultsModal.addEventListener("click", (e)=>{ if(e.target === resultsModal) resultsModal.classList.remove("show"); });
+</script>
+</body>
+</html>

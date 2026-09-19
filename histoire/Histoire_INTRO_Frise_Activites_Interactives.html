@@ -1,0 +1,729 @@
+<!--
+  HISTOIRE CM1 — Fiche 1.1 — Reconstitue la frise chronologique
+  =============================================================
+  Pensé pour une PROJECTION AU TBI :
+  - toute l'activité tient dans un seul écran (aucun défilement, body en 100vh)
+  - la frise est au centre, les étiquettes sont dans une barre EN BAS
+    (portée de main d'un élève de 9 ans debout au tableau)
+  - deux façons de jouer : glisser-déposer OU « je touche l'étiquette,
+    je touche la case » (plus fiable au doigt sur un TBI)
+  - un bouton « Afficher » par catégorie (périodes / dates / évènements)
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histoire CM1 — Reconstitue la frise chronologique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#2E1A47;
+    --indigo-deep:#20122F;
+    --indigo-soft:#3D2361;
+    --yellow:#FFC93C;
+    --yellow-deep:#E8AE13;
+    --purple:#9B51E0;
+    --green:#2E9E5B;
+    --orange:#F2994A;
+    --ink:#241442;
+    --paper:#FDFBFF;
+    --grey:#9086AC;
+    --prehistoire:#00B050;
+    --antiquite:#F280E4;
+    --moyenage:#5BC8D6;   /* turquoise : ne doit pas être confondu avec l'orange « APRÈS J-C » */
+    --tempsmod:#D99594;
+    --contemp:#C2D69B;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; height:100%; overflow:hidden; }
+  body{
+    background:
+      radial-gradient(circle at 12% 8%, rgba(255,201,60,0.16), transparent 42%),
+      radial-gradient(circle at 92% 88%, rgba(155,81,224,0.22), transparent 40%),
+      var(--indigo);
+    font-family:'Nunito', sans-serif;
+    color:var(--paper);
+    -webkit-font-smoothing:antialiased;
+    user-select:none;
+  }
+  .app{ height:100vh; display:flex; flex-direction:column; }
+
+  /* ================= BARRE DU HAUT (compacte) ================= */
+  .topbar{
+    flex:none; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    padding:0 clamp(12px,1.6vw,26px); height:clamp(52px,7.5vh,78px);
+    background:var(--indigo-deep); border-bottom:3px solid var(--indigo-soft);
+  }
+  .title{
+    font-family:'Baloo 2',sans-serif; font-weight:700;
+    font-size:clamp(0.95rem,1.9vh,1.45rem); display:flex; align-items:center; gap:10px;
+  }
+  .title .badge{
+    width:clamp(30px,4.2vh,44px); height:clamp(30px,4.2vh,44px); border-radius:12px;
+    background:var(--yellow); display:flex; align-items:center; justify-content:center;
+    font-size:clamp(16px,2.4vh,24px); flex:none;
+  }
+  .progress{
+    font-family:'Baloo 2',sans-serif; font-weight:700; color:var(--yellow);
+    font-size:clamp(0.78rem,1.6vh,1.05rem); white-space:nowrap;
+  }
+  .top-actions{ margin-left:auto; display:flex; gap:10px; align-items:center; }
+
+  .btn{
+    font-family:'Baloo 2',sans-serif; font-weight:700;
+    font-size:clamp(0.78rem,1.6vh,1.02rem);
+    border-radius:999px; padding:clamp(8px,1.3vh,14px) clamp(14px,1.6vw,26px);
+    border:2px solid transparent; cursor:pointer; white-space:nowrap;
+    transition:transform .1s ease, filter .1s ease;
+  }
+  .btn:active{ transform:scale(0.96); }
+  .btn-primary{ background:var(--yellow); color:var(--ink); }
+  .btn-primary:hover{ filter:brightness(1.06); }
+  .btn-ghost{ background:transparent; color:var(--paper); border-color:var(--indigo-soft); }
+  .btn-ghost:hover{ border-color:var(--yellow); }
+  .btn-mini{
+    background:transparent; color:var(--yellow); border:2px solid var(--yellow-deep);
+    font-family:'Baloo 2',sans-serif; font-weight:700; cursor:pointer;
+    font-size:clamp(0.66rem,1.3vh,0.85rem); padding:5px 14px; border-radius:999px;
+    white-space:nowrap;
+  }
+  .btn-mini:hover{ background:rgba(255,201,60,0.16); }
+
+  /* ================= SCÈNE : LA FRISE ================= */
+  /* La scène occupe toute la hauteur restante : les 3 bandes de la frise se
+     partagent cet espace en proportion → jamais de vide inutile, jamais de
+     débordement, quelle que soit la résolution du vidéoprojecteur. */
+  .stage{
+    flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center;
+    padding:clamp(6px,1.4vh,20px) clamp(16px,2.6vw,46px) 0;
+  }
+  .frise{ flex:0 0 auto; display:flex; flex-direction:column; }
+
+  /* --- bandeau avant / après J-C (repère fixe, non déplaçable) --- */
+  .jc-band{ flex:0 0 auto; display:flex; width:100%; height:clamp(22px,3.4vh,44px); margin-bottom:clamp(4px,0.8vh,10px); gap:6px; }
+  .jc-band .seg{
+    display:flex; align-items:center; justify-content:center; border-radius:8px;
+    font-family:'Baloo 2',sans-serif; font-weight:800; color:#fff;
+    font-size:clamp(0.65rem,1.5vh,1.05rem); letter-spacing:1px;
+  }
+  .jc-band .before{ background:#0F75C0; }
+  .jc-band .after{ background:#F3961D; }
+
+  /* --- la bande des 5 périodes --- */
+  .frise-bar{
+    position:relative; display:flex; width:100%;
+    flex:0 0 auto; height:clamp(96px,17vh,205px);
+    border-radius:14px; border:3px solid var(--indigo-soft);
+    background:rgba(255,255,255,0.03); overflow:hidden;
+  }
+  .periode-slot{
+    flex:0 0 auto; height:100%; position:relative;
+    border-right:2px dashed rgba(255,255,255,0.22);
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    transition:background .15s ease;
+  }
+  .periode-slot:last-child{ border-right:none; }
+  .periode-slot .ph{
+    color:var(--grey); font-family:'Baloo 2',sans-serif; font-weight:600;
+    font-size:clamp(0.68rem,1.4vh,0.95rem);
+  }
+  .periode-slot.hover-target,
+  .periode-slot.awaiting{ background:rgba(255,201,60,0.12); }
+  .periode-slot.awaiting{ animation:blink 1.4s ease-in-out infinite; }
+  .periode-slot .chip{
+    width:100%; height:100%; border-radius:0; box-shadow:none; border:none;
+    font-size:clamp(0.74rem,2.1vh,1.6rem); padding:4px;
+  }
+  .periode-slot.correct .chip{ box-shadow:inset 0 0 0 4px var(--green); }
+  .periode-slot.incorrect .chip{ box-shadow:inset 0 0 0 4px var(--orange); }
+
+  .jc-marker{
+    position:absolute; top:0; bottom:0; width:0; z-index:3;
+    border-left:3px dashed rgba(255,255,255,0.8); pointer-events:none;
+  }
+  .jc-marker span{
+    position:absolute; top:3px; left:50%; transform:translateX(-50%);
+    background:var(--paper); color:var(--ink); border-radius:6px;
+    font-family:'Baloo 2',sans-serif; font-weight:800;
+    font-size:clamp(0.6rem,1.25vh,0.82rem); padding:1px 7px; white-space:nowrap;
+  }
+
+  /* --- ligne des dates, juste sous la bande --- */
+  /* hauteur = juste ce qu'il faut (trait + pastille) : la date reste collée à la
+     bande, et la ligne des évènements démarre immédiatement en dessous */
+  .dates-row{
+    position:relative; flex:0 0 auto;
+    height:calc(clamp(8px,1.8vh,20px) + clamp(42px,6vh,74px) + clamp(8px,1.2vh,14px));
+  }
+  .date-slot{
+    position:absolute; top:0; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .date-slot .tick{ width:0; height:clamp(8px,1.8vh,20px); border-left:3px solid rgba(255,255,255,0.45); }
+  .date-slot .pad{
+    width:clamp(82px,7.5vw,128px); height:clamp(42px,6vh,74px); border-radius:12px;
+    border:3px dashed var(--yellow-deep); background:rgba(255,201,60,0.07);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2',sans-serif; font-weight:700; color:var(--grey);
+    font-size:clamp(0.72rem,1.5vh,0.95rem);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .date-slot .pad.hover-target,
+  .date-slot .pad.awaiting{ border-color:var(--yellow); background:rgba(255,201,60,0.2); }
+  .date-slot .pad.awaiting{ animation:blink 1.4s ease-in-out infinite; }
+  .date-slot .pad.filled{ border-style:solid; padding:0; }
+  .date-slot .pad.correct{ border-color:var(--green); }
+  .date-slot .pad.incorrect{ border-color:var(--orange); }
+  .date-slot .pad .chip{ width:100%; height:100%; box-shadow:none; }
+
+  /* --- ligne des évènements (2 niveaux décalés pour ne jamais se chevaucher) --- */
+  .events-row{
+    position:relative; flex:0 0 auto;
+    height:calc(2 * clamp(52px,8vh,92px) + clamp(16px,2.2vh,28px) + clamp(8px,1.4vh,16px) + 8px);
+  }
+  .event-slot{ position:absolute; top:0; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; }
+  /* niveau a : collé sous la date. niveau b : un cran plus bas, relié par un
+     trait continu, uniquement pour les étiquettes trop proches horizontalement */
+  .event-slot .link{ width:0; border-left:3px dashed rgba(255,255,255,0.35); height:clamp(8px,1.4vh,16px); }
+  .event-slot.level-b .link{ height:calc(clamp(52px,8vh,92px) + clamp(16px,2.2vh,28px)); }
+  .event-slot .pad{
+    width:clamp(134px,13vw,220px); height:clamp(52px,8vh,92px); border-radius:12px;
+    border:3px dashed var(--purple); background:rgba(155,81,224,0.1);
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:4px;
+    font-family:'Baloo 2',sans-serif; font-weight:600; color:var(--grey);
+    font-size:clamp(0.68rem,1.6vh,1.05rem);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .event-slot .pad.hover-target,
+  .event-slot .pad.awaiting{ border-color:var(--yellow); background:rgba(255,201,60,0.18); }
+  .event-slot .pad.awaiting{ animation:blink 1.4s ease-in-out infinite; }
+  .event-slot .pad.filled{ border-style:solid; padding:0; }
+  .event-slot .pad.correct{ border-color:var(--green); }
+  .event-slot .pad.incorrect{ border-color:var(--orange); }
+  .event-slot .pad .chip{ width:100%; height:100%; box-shadow:none; }
+
+  @keyframes blink{ 0%,100%{ opacity:1; } 50%{ opacity:0.55; } }
+
+  .status-line{
+    flex:none; text-align:center; font-family:'Baloo 2',sans-serif; font-weight:700;
+    font-size:clamp(0.85rem,1.9vh,1.25rem); color:var(--yellow);
+    height:clamp(22px,3vh,32px); line-height:1.1; padding-top:2px;
+  }
+
+  /* ================= LE PLATEAU D'ÉTIQUETTES (en bas) ================= */
+  .dock{
+    flex:none; display:flex; gap:clamp(10px,1.4vw,22px);
+    padding:clamp(8px,1.4vh,16px) clamp(14px,2.4vw,40px) clamp(10px,1.8vh,20px);
+    background:var(--indigo-deep); border-top:3px solid var(--indigo-soft);
+    /* hauteur = contenu réel : les étiquettes ne sont jamais coupées en bas */
+    flex:0 0 auto; height:auto; min-height:clamp(132px,17vh,180px); max-height:36vh;
+  }
+  .dock-group{ display:flex; flex-direction:column; min-width:0; }
+  .dock-group.g-periodes{ flex:2.1; }
+  .dock-group.g-dates{ flex:1; }
+  .dock-group.g-evenements{ flex:2.4; }
+  .dock-head{
+    display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap;
+    font-family:'Baloo 2',sans-serif; font-weight:700;
+    font-size:clamp(0.72rem,1.45vh,0.95rem);
+  }
+  .dock-head .dot{ width:14px; height:14px; border-radius:5px; flex:none; }
+  .tray{
+    flex:1; display:flex; flex-wrap:wrap; align-content:flex-start; gap:clamp(6px,0.9vh,12px);
+    padding:clamp(6px,1vh,12px); border-radius:14px; background:rgba(255,255,255,0.05);
+    overflow-y:auto;
+  }
+  .tray.done{ display:flex; align-items:center; justify-content:center; }
+  .tray-done-msg{
+    color:var(--green); font-family:'Baloo 2',sans-serif; font-weight:700;
+    font-size:clamp(0.75rem,1.5vh,1rem);
+  }
+
+  /* ================= ÉTIQUETTES ================= */
+  .chip{
+    border-radius:12px; padding:clamp(6px,1vh,12px) clamp(8px,0.9vw,16px);
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    cursor:grab; touch-action:none; color:#1a1030;
+    background:var(--chip-color,#ccc);
+    font-family:'Baloo 2',sans-serif; font-weight:700; line-height:1.15;
+    font-size:clamp(0.72rem,1.65vh,1.1rem);
+    min-height:clamp(42px,5.4vh,64px);
+    box-shadow:0 5px 0 rgba(0,0,0,0.18), 0 7px 12px rgba(0,0,0,0.25);
+    border:3px solid transparent;
+    transition:transform .1s ease, box-shadow .1s ease;
+  }
+  .chip.periode{ min-width:clamp(96px,9vw,168px); }
+  .chip.date{ background:var(--yellow); min-width:clamp(74px,6vw,116px); font-size:clamp(0.88rem,2.2vh,1.5rem); }
+  .chip.evenement{ background:var(--purple); color:#fff; min-width:clamp(120px,11vw,180px); }
+  .chip.ghost{ position:fixed; z-index:900; pointer-events:none; opacity:0.95; transform:scale(1.05) rotate(-2deg); }
+  .chip.dim{ opacity:0.25; }
+  .chip.selected{ outline:5px solid var(--paper); outline-offset:2px; transform:scale(1.05); }
+  .chip.correct{ border-color:var(--green); }
+  .chip.incorrect{ border-color:var(--orange); }
+
+  .float-emoji{ position:fixed; font-size:2.4rem; pointer-events:none; z-index:950; animation:floatUp 1.2s ease-out forwards; }
+  @keyframes floatUp{
+    0%{ transform:translateY(0) scale(0.6); opacity:0; }
+    15%{ opacity:1; }
+    100%{ transform:translateY(-160px) scale(1.25); opacity:0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="topbar">
+    <div class="title"><span class="badge">🏛️</span> Reconstitue la frise chronologique</div>
+    <div class="progress" id="progress"></div>
+    <div class="top-actions">
+      <button class="btn btn-primary" id="btnCheck">✔ Vérifier</button>
+      <button class="btn btn-ghost" id="btnReset">↺ Recommencer</button>
+      <button class="btn btn-ghost" id="btnFull" title="Plein écran">⛶</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="frise">
+      <div class="jc-band" id="jcBand">
+        <div class="seg before">AVANT J-C</div>
+        <div class="seg after">APRÈS J-C</div>
+      </div>
+      <div class="frise-bar" id="friseBar"></div>
+      <div class="dates-row" id="datesRow"></div>
+      <div class="events-row" id="eventsRow"></div>
+    </div>
+  </div>
+
+  <div class="status-line" id="statusLine">Touche une étiquette, puis touche sa case — ou fais-la glisser.</div>
+
+  <div class="dock" id="dock">
+    <div class="dock-group g-periodes">
+      <div class="dock-head">
+        <span class="dot" style="background:var(--prehistoire)"></span> 1 · Les 5 périodes
+        <button class="btn-mini" id="btnRevealPeriodes">Afficher les périodes</button>
+      </div>
+      <div class="tray" id="trayPeriodes" data-category="periode"></div>
+    </div>
+
+    <div class="dock-group g-dates">
+      <div class="dock-head">
+        <span class="dot" style="background:var(--yellow)"></span> 2 · Les dates
+        <button class="btn-mini" id="btnRevealDates">Afficher les dates</button>
+      </div>
+      <div class="tray" id="trayDates" data-category="date"></div>
+    </div>
+
+    <div class="dock-group g-evenements">
+      <div class="dock-head">
+        <span class="dot" style="background:var(--purple)"></span> 3 · Les évènements
+        <button class="btn-mini" id="btnRevealEvenements">Afficher les évènements</button>
+      </div>
+      <div class="tray" id="trayEvenements" data-category="evenement"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   DONNÉES — d'après la fiche 1.1 (Histoire — Introduction, CM1)
+   ============================================================ */
+const PERIODES = [
+  { key:"prehistoire", label:"PRÉHISTOIRE",        color:"var(--prehistoire)", frac0:0,    frac1:0.17 },
+  { key:"antiquite",   label:"ANTIQUITÉ",          color:"var(--antiquite)",   frac0:0.17, frac1:0.45 },
+  { key:"moyenage",    label:"MOYEN ÂGE",          color:"var(--moyenage)",    frac0:0.45, frac1:0.62 },
+  { key:"tempsmod",    label:"TEMPS MODERNES",     color:"var(--tempsmod)",    frac0:0.62, frac1:0.74 },
+  { key:"contemp",     label:"ÉPOQUE CONTEMPORAINE", color:"var(--contemp)",   frac0:0.74, frac1:1.0  },
+];
+
+const DATES = [
+  { key:"d1", label:"-3000", frac:0.17 },
+  { key:"d2", label:"476",   frac:0.45 },
+  { key:"d3", label:"1492",  frac:0.62 },
+  { key:"d4", label:"1789",  frac:0.74 },
+];
+
+// niveaux alternés (a = haut, b = bas) pour que deux étiquettes voisines
+// ne se chevauchent jamais, même sur un vidéoprojecteur en 1024×768
+const EVENEMENTS = [
+  { key:"e0", label:"Invention de l'écriture",       frac:0.17, level:"a" },
+  { key:"e2", label:"Chute de l'Empire romain",      frac:0.45, level:"a" },
+  { key:"e3", label:"Christophe Colomb en Amérique", frac:0.62, level:"a" },
+  { key:"e4", label:"Prise de la Bastille",          frac:0.74, level:"b" },
+];
+
+// Repère de la naissance de Jésus-Christ : c'est l'AN 1.
+// Il n'y a pas d'année 0 dans notre calendrier : on passe de 1 av. J.-C. à 1 ap. J.-C.
+const JC_FRAC = 0.412;
+const TOTAL = PERIODES.length + DATES.length + EVENEMENTS.length;
+
+const CATS = {
+  periode:    { data:PERIODES,    trayId:"trayPeriodes",    slotSel:".periode-slot",  nom:"périodes" },
+  date:       { data:DATES,       trayId:"trayDates",       slotSel:".date-slot .pad", nom:"dates" },
+  evenement:  { data:EVENEMENTS,  trayId:"trayEvenements",  slotSel:".event-slot .pad", nom:"évènements" },
+};
+
+const friseBar  = document.getElementById("friseBar");
+const datesRow  = document.getElementById("datesRow");
+const eventsRow = document.getElementById("eventsRow");
+const statusLine = document.getElementById("statusLine");
+const progressEl = document.getElementById("progress");
+
+let selectedChip = null;
+
+/* ============================================================
+   CONSTRUCTION
+   ============================================================ */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function makeChip(category, item){
+  const chip = document.createElement("div");
+  chip.className = "chip " + category;
+  chip.dataset.key = item.key;
+  chip.dataset.category = category;
+  if(item.color) chip.style.setProperty("--chip-color", item.color);
+  chip.textContent = item.label;
+  attachPointer(chip);
+  return chip;
+}
+
+function placeholderFor(category){
+  if(category==="date") return "?";
+  if(category==="evenement") return "évènement ?";
+  return "dépose ici";
+}
+
+function buildBoard(){
+  selectedChip = null;
+
+  // --- bandeau avant / après J-C, aligné sur le repère de l'an 1 ---
+  const band = document.getElementById("jcBand");
+  band.querySelector(".before").style.flex = `0 0 ${JC_FRAC*100}%`;
+  band.querySelector(".after").style.flex  = `1 1 auto`;
+
+  // --- bande des périodes ---
+  friseBar.innerHTML = "";
+  PERIODES.forEach(p=>{
+    const slot = document.createElement("div");
+    slot.className = "periode-slot";
+    slot.dataset.key = p.key;
+    slot.dataset.category = "periode";
+    slot.style.flexBasis = ((p.frac1-p.frac0)*100) + "%";
+    slot.innerHTML = `<span class="ph">dépose ici</span>`;
+    friseBar.appendChild(slot);
+  });
+  const jc = document.createElement("div");
+  jc.className = "jc-marker";
+  jc.style.left = (JC_FRAC*100) + "%";
+  jc.innerHTML = `<span>an 1 — naissance de J.-C.</span>`;
+  friseBar.appendChild(jc);
+
+  // --- dates ---
+  datesRow.innerHTML = "";
+  DATES.forEach(d=>{
+    const wrap = document.createElement("div");
+    wrap.className = "date-slot";
+    wrap.style.left = (d.frac*100) + "%";
+    wrap.innerHTML = `<div class="tick"></div>
+      <div class="pad" data-key="${d.key}" data-category="date"><span class="ph">?</span></div>`;
+    datesRow.appendChild(wrap);
+  });
+
+  // --- évènements ---
+  eventsRow.innerHTML = "";
+  EVENEMENTS.forEach(e=>{
+    const wrap = document.createElement("div");
+    wrap.className = "event-slot level-" + e.level;
+    wrap.style.left = (e.frac*100) + "%";
+    wrap.innerHTML = `<div class="link"></div>
+      <div class="pad" data-key="${e.key}" data-category="evenement"><span class="ph">évènement ?</span></div>`;
+    eventsRow.appendChild(wrap);
+  });
+
+  // --- étiquettes dans le plateau du bas ---
+  Object.keys(CATS).forEach(category=>{
+    const tray = document.getElementById(CATS[category].trayId);
+    tray.innerHTML = "";
+    tray.classList.remove("done");
+    shuffle(CATS[category].data).forEach(item => tray.appendChild(makeChip(category, item)));
+  });
+
+  attachSlotTaps();
+  statusLine.textContent = "Touche une étiquette, puis touche sa case — ou fais-la glisser.";
+  statusLine.style.color = "var(--yellow)";
+  updateProgress();
+}
+
+/* ============================================================
+   SÉLECTION AU DOIGT (touche l'étiquette → touche la case)
+   ============================================================ */
+function selectChip(chip){
+  clearSelection();
+  selectedChip = chip;
+  chip.classList.add("selected");
+  document.querySelectorAll(CATS[chip.dataset.category].slotSel).forEach(slot=>{
+    if(!slot.querySelector(".chip")) slot.classList.add("awaiting");
+  });
+}
+
+function clearSelection(){
+  if(selectedChip) selectedChip.classList.remove("selected");
+  selectedChip = null;
+  document.querySelectorAll(".awaiting").forEach(s=>s.classList.remove("awaiting"));
+}
+
+function attachSlotTaps(){
+  Object.keys(CATS).forEach(category=>{
+    document.querySelectorAll(CATS[category].slotSel).forEach(slot=>{
+      slot.addEventListener("click", ()=>{
+        if(!selectedChip) return;
+        if(selectedChip.dataset.category !== category) return;
+        if(slot.contains(selectedChip)) return;   // déjà dans cette case
+        const chip = selectedChip;
+        clearSelection();
+        placeInSlot(chip, slot);
+      });
+    });
+  });
+}
+
+// toucher le plateau du bas = renvoyer l'étiquette sélectionnée dans sa réserve
+document.getElementById("dock").addEventListener("click", (e)=>{
+  if(!selectedChip) return;
+  if(e.target.closest(".chip") === selectedChip) return;
+  const chip = selectedChip;
+  clearSelection();
+  returnToTray(chip);
+});
+
+/* ============================================================
+   GLISSER-DÉPOSER (Pointer Events — compatible tactile TBI)
+   ============================================================ */
+function attachPointer(chip){
+  chip.addEventListener("pointerdown", (e)=>{
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const category = chip.dataset.category;
+    let ghost = null, dragging = false, lastTarget = null, offsetX = 0, offsetY = 0;
+    try{ chip.setPointerCapture(e.pointerId); }catch(err){}
+
+    function slotUnder(ev){
+      if(ghost) ghost.style.display = "none";
+      const under = document.elementFromPoint(ev.clientX, ev.clientY);
+      if(ghost) ghost.style.display = "";
+      if(!under) return null;
+      const slot = category === "periode" ? under.closest(".periode-slot") : under.closest(".pad");
+      if(slot && slot.dataset.category === category) return slot;
+      return null;
+    }
+
+    function startDrag(ev){
+      dragging = true;
+      clearSelection();
+      const rect = chip.getBoundingClientRect();
+      offsetX = startX - rect.left;
+      offsetY = startY - rect.top;
+      ghost = chip.cloneNode(true);
+      ghost.classList.add("ghost");
+      ghost.classList.remove("selected");
+      ghost.style.width = rect.width+"px";
+      ghost.style.height = rect.height+"px";
+      ghost.style.left = rect.left+"px";
+      ghost.style.top = rect.top+"px";
+      document.body.appendChild(ghost);
+      chip.classList.add("dim");
+    }
+
+    function move(ev){
+      if(!dragging){
+        if(Math.hypot(ev.clientX-startX, ev.clientY-startY) < 8) return;
+        startDrag(ev);
+      }
+      ghost.style.left = (ev.clientX - offsetX)+"px";
+      ghost.style.top = (ev.clientY - offsetY)+"px";
+      const slot = slotUnder(ev);
+      if(lastTarget && lastTarget !== slot) lastTarget.classList.remove("hover-target");
+      if(slot) slot.classList.add("hover-target");
+      lastTarget = slot;
+    }
+
+    function up(ev){
+      chip.removeEventListener("pointermove", move);
+      chip.removeEventListener("pointerup", up);
+      chip.removeEventListener("pointercancel", up);
+      try{ chip.releasePointerCapture(ev.pointerId); }catch(err){}
+      document.querySelectorAll(".hover-target").forEach(s=>s.classList.remove("hover-target"));
+
+      if(!dragging){                       // simple touche → sélection
+        if(selectedChip === chip) clearSelection();
+        else selectChip(chip);
+        return;
+      }
+
+      const slot = slotUnder(ev);
+      if(ghost) ghost.style.display = "none";
+      const under = document.elementFromPoint(ev.clientX, ev.clientY);
+      if(ghost){ ghost.remove(); ghost = null; }
+      chip.classList.remove("dim");
+
+      if(slot) placeInSlot(chip, slot);
+      else if(under && under.closest(".dock")) returnToTray(chip);
+    }
+
+    chip.addEventListener("pointermove", move);
+    chip.addEventListener("pointerup", up);
+    chip.addEventListener("pointercancel", up);
+  });
+}
+
+/* ============================================================
+   PLACER / RETIRER
+   ============================================================ */
+function slotOf(chip){
+  const p = chip.parentElement;
+  if(!p) return null;
+  return (p.classList.contains("periode-slot") || p.classList.contains("pad")) ? p : null;
+}
+
+function clearSlot(slot){
+  slot.classList.remove("filled","correct","incorrect","hover-target","awaiting");
+  const cat = slot.dataset.category;
+  slot.innerHTML = `<span class="ph">${placeholderFor(cat)}</span>`;
+}
+
+function placeInSlot(chip, slot){
+  const occupant = slot.querySelector(".chip");
+  if(occupant && occupant !== chip) returnToTray(occupant);
+  const prev = slotOf(chip);
+  if(prev) clearSlot(prev);
+
+  slot.innerHTML = "";
+  slot.appendChild(chip);
+  slot.classList.add("filled");
+  slot.classList.remove("correct","incorrect","awaiting","hover-target");
+  chip.classList.remove("correct","incorrect","dim","selected");
+  updateProgress();
+}
+
+function returnToTray(chip){
+  const prev = slotOf(chip);
+  if(prev) clearSlot(prev);
+  chip.classList.remove("correct","incorrect","dim","selected");
+  const tray = document.getElementById(CATS[chip.dataset.category].trayId);
+  tray.classList.remove("done");
+  const msg = tray.querySelector(".tray-done-msg");
+  if(msg) msg.remove();
+  tray.appendChild(chip);
+  updateProgress();
+}
+
+function updateProgress(){
+  let placed = 0;
+  Object.keys(CATS).forEach(category=>{
+    document.querySelectorAll(CATS[category].slotSel).forEach(s=>{ if(s.querySelector(".chip")) placed++; });
+    const tray = document.getElementById(CATS[category].trayId);
+    const remaining = tray.querySelectorAll(".chip").length;
+    const msg = tray.querySelector(".tray-done-msg");
+    if(remaining === 0 && !msg){
+      tray.classList.add("done");
+      const span = document.createElement("span");
+      span.className = "tray-done-msg";
+      span.textContent = "✓ toutes placées";
+      tray.appendChild(span);
+    } else if(remaining > 0 && msg){
+      msg.remove();
+      tray.classList.remove("done");
+    }
+  });
+  progressEl.textContent = `${placed} / ${TOTAL} étiquettes placées`;
+}
+
+/* ============================================================
+   VÉRIFIER / AFFICHER / RECOMMENCER
+   ============================================================ */
+document.getElementById("btnCheck").addEventListener("click", ()=>{
+  clearSelection();
+  let filled = 0, correct = 0;
+  Object.keys(CATS).forEach(category=>{
+    document.querySelectorAll(CATS[category].slotSel).forEach(slot=>{
+      const chip = slot.querySelector(".chip");
+      slot.classList.remove("correct","incorrect");
+      if(chip) chip.classList.remove("correct","incorrect");
+      if(!chip) return;
+      filled++;
+      if(chip.dataset.key === slot.dataset.key){
+        slot.classList.add("correct"); chip.classList.add("correct"); correct++;
+      } else {
+        slot.classList.add("incorrect"); chip.classList.add("incorrect");
+      }
+    });
+  });
+  if(filled < TOTAL){
+    statusLine.textContent = `Il reste ${TOTAL - filled} étiquette(s) à placer avant de vérifier !`;
+    statusLine.style.color = "var(--orange)";
+    return;
+  }
+  if(correct === TOTAL){
+    statusLine.textContent = "Bravo ! La frise est complète et parfaitement reconstituée. 🎉";
+    statusLine.style.color = "var(--green)";
+    burstEmoji();
+  } else {
+    statusLine.textContent = `${correct} sur ${TOTAL} bien placées — les cases orange sont à corriger.`;
+    statusLine.style.color = "var(--yellow)";
+  }
+});
+
+function revealCategory(category){
+  clearSelection();
+  CATS[category].data.forEach(item=>{
+    const slot = document.querySelector(`${CATS[category].slotSel}[data-key="${item.key}"]`);
+    const chip = document.querySelector(`.chip[data-category="${category}"][data-key="${item.key}"]`);
+    if(chip && slot && !slot.contains(chip)) placeInSlot(chip, slot);
+  });
+  document.querySelectorAll(CATS[category].slotSel).forEach(slot=>{
+    slot.classList.remove("incorrect");
+    slot.classList.add("correct");
+    const chip = slot.querySelector(".chip");
+    if(chip){ chip.classList.remove("incorrect"); chip.classList.add("correct"); }
+  });
+  updateProgress();
+  const restants = Object.keys(CATS).filter(c=>c!==category).map(c=>CATS[c].nom).join(" et les ");
+  statusLine.textContent = `Voici les ${CATS[category].nom}. À toi de trouver les ${restants} !`;
+  statusLine.style.color = "var(--yellow)";
+}
+
+document.getElementById("btnRevealPeriodes").addEventListener("click", ()=>revealCategory("periode"));
+document.getElementById("btnRevealDates").addEventListener("click", ()=>revealCategory("date"));
+document.getElementById("btnRevealEvenements").addEventListener("click", ()=>revealCategory("evenement"));
+document.getElementById("btnReset").addEventListener("click", buildBoard);
+
+document.getElementById("btnFull").addEventListener("click", ()=>{
+  if(!document.fullscreenElement){ document.documentElement.requestFullscreen?.(); }
+  else { document.exitFullscreen?.(); }
+});
+
+function burstEmoji(){
+  const emojis = ["✨","🎉","⭐","🏛️"];
+  const rect = friseBar.getBoundingClientRect();
+  for(let i=0;i<10;i++){
+    const span = document.createElement("span");
+    span.className = "float-emoji";
+    span.textContent = emojis[i % emojis.length];
+    span.style.left = (rect.left + Math.random()*rect.width)+"px";
+    span.style.top = (rect.top + rect.height/2)+"px";
+    document.body.appendChild(span);
+    setTimeout(()=>span.remove(), 1300);
+  }
+}
+
+buildBoard();
+</script>
+</body>
+</html>
